@@ -1,0 +1,8 @@
+[package]
+name = "armbf"
+version = "0.1.0"
+authors = ["meta <hosaka-corp@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+armbf_derive = { path = "../armbf_derive" }

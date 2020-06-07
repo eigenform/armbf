@@ -1,0 +1,10 @@
+[package]
+name = "armdecode"
+version = "0.1.0"
+authors = ["meta <hosaka-corp@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+bitfield = "0.13.2"
+armbf = { path = "bf/armbf" }
+
