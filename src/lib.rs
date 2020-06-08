@@ -1,42 +1,20 @@
+//! Exposes functions for decoding ARM instructions.
 
 #![allow(unused_variables)]
-#![allow(unused_imports)]
 #![allow(dead_code)]
 #![allow(unused_macros)]
+//#![allow(unused_imports)]
 
-use armbf::*;
+use armbf::newtype::*;
+use armbf::inst::*;
+use armbf_prim::*;
 
-pub mod decode;
-use crate::decode::*;
-
-/// Decode bits.
-const DECODE_BITS_MASK:     u32 = 0b0000_11111111_000000000000_1111_0000;
-
-/// The most general decode bits.
-const GROUP_MASK:           u32 = 0b0000_11100000_000000000000_0000_0000;
-
-/// Mask for multiply instructions.
-const MULTIPLY_MASK:        u32 = 0b0000_11110000_000000000000_1111_0000;
-/// Match for multiply instructions.
-const MULTIPLY_MATCH:       u32 = 0b0000_00000000_000000000000_1001_0000;
-
-/// Mask for control instructions.
-const CONTROL_MASK:         u32 = 0b0000_11011001_000000000000_0000_0000;
-/// Match for control instructions.
-const CONTROL_MATCH:        u32 = 0b0000_00010000_000000000000_0000_0000;
-
-/// Mask for load/store miscellaneous instructions.
-const LSMISC_MASK:          u32 = 0b0000_11100000_000000000000_1001_0000;
-/// Match for load/store miscellaneous instructions.
-const LSMISC_MATCH:         u32 = 0b0000_00000000_000000000000_1001_0000;
-
-
-#[inline(always)]
 /// Decode a control instruction.
+#[inline(always)]
 pub fn arm_decode_control(x: u32) -> ArmInst {
     match get_control_opcd!(x) {
         0b0000 => {
-            if bit!(x, 21) { return ArmInst::Mrs_reg; } 
+            if bit!(x, 21) { return ArmInst::MrsReg; } 
             else { return ArmInst::Msr; }
         }
         0b0001 => {
@@ -74,8 +52,8 @@ pub fn arm_decode_control(x: u32) -> ArmInst {
     }
 }
 
-#[inline(always)]
 /// Decode a load/store misc. instruction.
+#[inline(always)]
 pub fn arm_decode_lsmisc(x: u32) -> ArmInst {
     match get_decode_bits_lo!(x) {
         0b1001 => {
@@ -83,45 +61,23 @@ pub fn arm_decode_lsmisc(x: u32) -> ArmInst {
             else { return ArmInst::Swp; }
         },
         0b1011 => {
-            if bit!(x, 22) { return ArmInst::StrhLdrh_imm; } 
-            else { return ArmInst::StrhLdrh_reg; }
+            if bit!(x, 22) { return ArmInst::StrhLdrhImm; } 
+            else { return ArmInst::StrhLdrhReg; }
         },
         0b1101 | 0b1110 => {
             let tbl = (bit!(x, 20), bit!(x, 22), bit!(x, 5));
             return match tbl {
-                (true, false, false) => ArmInst::Ldrsb_reg,
-                (true, false, true) =>  ArmInst::Ldrsh_reg,
-                (true, true, false) =>  ArmInst::Ldrsb_imm,
-                (true, true, true) =>   ArmInst::Ldrsh_imm,
-                (false, false, _) =>    ArmInst::StrdLdrd_reg,
-                (false, true, _) =>     ArmInst::StrdLdrd_imm,
+                (true, false, false) => ArmInst::LdrsbReg,
+                (true, false, true) =>  ArmInst::LdrshReg,
+                (true, true, false) =>  ArmInst::LdrsbImm,
+                (true, true, true) =>   ArmInst::LdrshImm,
+                (false, false, _) =>    ArmInst::StrdLdrdReg,
+                (false, true, _) =>     ArmInst::StrdLdrdImm,
             }
         },
         _ => unreachable!(),
     }
 }
-
-/// Check if this number is a valid control instruction.
-macro_rules! is_valid_control_instr { ($val:expr) => {
-    (
-        (($val & CONTROL_MASK) == CONTROL_MATCH) && 
-        !(
-            (bit!($val, 25) == false) && 
-            (bit!($val, 7) == true) && 
-            (bit!($val, 4) == true)
-        )
-    )
-}}
-
-/// Check if this number is a valid load/store misc instruction.
-macro_rules! is_valid_lsmisc_instr { ($val:expr) => {
-    ($val & LSMISC_MASK) == LSMISC_MATCH
-}}
-
-/// Check if this number is a valid multiply instruction.
-macro_rules! is_valid_multiply_instr { ($val:expr) => {
-    ($val & MULTIPLY_MASK) == MULTIPLY_MATCH
-}}
 
 
 /// Top-level decoder for ARM instructions.
@@ -144,16 +100,16 @@ pub fn decode(x: u32) -> ArmInst {
                 else { return ArmInst::UmulUmla; }
             }
 
-            if bit!(x, 4) { return ArmInst::DpShiftReg; } 
-            ArmInst::DpShiftImm
+            if bit!(x, 4) { return ArmInst::DpShiftReg(DpShiftRegBf(x)); } 
+            ArmInst::DpShiftImm(DpShiftImmBf(x))
         },
 
         // Data processing (rotate immediate).
         // There is only one exception for a single control instruction (mrs).
 
         0b001 => {
-            if is_valid_control_instr!(x) { return ArmInst::Mrs_imm; }
-            ArmInst::DpRotImm
+            if is_valid_control_instr!(x) { return ArmInst::MrsImm; }
+            ArmInst::DpRotImm(DpRotImmBf(x))
         },
 
         // Load/store (immediate offset)

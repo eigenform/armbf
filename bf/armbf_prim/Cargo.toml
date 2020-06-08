@@ -1,13 +1,9 @@
 [package]
-name = "armbf_derive"
+name = "armbf_prim"
 version = "0.1.0"
 authors = ["meta <hosaka-corp@users.noreply.github.com>"]
 edition = "2018"
 
-[lib]
-proc-macro = true
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-syn = "0.11.11"
-quote = "0.3.15"
-armbf_prim = { path = "../armbf_prim" }

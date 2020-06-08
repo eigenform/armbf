@@ -10,11 +10,6 @@ extern crate quote;
 
 use proc_macro::TokenStream;
 
-//let s = input.to_string();
-//let ast = syn::parse_derive_input(&s).unwrap();
-//let gen = impl_ls_common(&ast);
-//gen.parse().unwrap()
-
 /// Boilerplate code for parsing derive macro input.
 macro_rules! get_tokenstream { ($input:expr, $impl:ident) => {
     $impl(&syn::parse_derive_input(&$input.to_string()).unwrap())
@@ -22,14 +17,14 @@ macro_rules! get_tokenstream { ($input:expr, $impl:ident) => {
 }}
 
 
-#[proc_macro_derive(InstCommon)]
+#[proc_macro_derive(InstBits)]
 pub fn derive_inst_common(input: TokenStream) -> TokenStream {
     return get_tokenstream!(input, impl_inst_common);
 }
 fn impl_inst_common(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl InstCommon for #name {
+        impl InstBits for #name {
             #[inline(always)]
             fn cond(&self) -> u32 { get_cond!(self.0) }
             #[inline(always)]
@@ -39,14 +34,14 @@ fn impl_inst_common(ast: &syn::DeriveInput) -> quote::Tokens {
 }
 
 
-#[proc_macro_derive(DpCommon)]
+#[proc_macro_derive(DpBits)]
 pub fn derive_dp_common(input: TokenStream) -> TokenStream {
     return get_tokenstream!(input, impl_dp_common);
 }
 fn impl_dp_common(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl DpCommon for #name {
+        impl DpBits for #name {
             #[inline(always)]
             fn opcd(&self) -> u32 { get_opcd!(self.0) }
             #[inline(always)]
@@ -56,14 +51,14 @@ fn impl_dp_common(ast: &syn::DeriveInput) -> quote::Tokens {
 }
 
 
-#[proc_macro_derive(LsMultiCommon)]
+#[proc_macro_derive(LsMultiBits)]
 pub fn derive_ls_multi_common(input: TokenStream) -> TokenStream {
     return get_tokenstream!(input, impl_ls_multi_common);
 }
 fn impl_ls_multi_common(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl LsMultiCommon for #name {
+        impl LsMultiBits for #name {
             #[inline(always)]
             fn s(&self) -> bool { get_s_multi!(self.0) }
             #[inline(always)]
@@ -73,14 +68,14 @@ fn impl_ls_multi_common(ast: &syn::DeriveInput) -> quote::Tokens {
 }
 
 
-#[proc_macro_derive(LsCommon)]
+#[proc_macro_derive(LsBits)]
 pub fn derive_ls_common(input: TokenStream) -> TokenStream {
     return get_tokenstream!(input, impl_ls_common);
 }
 fn impl_ls_common(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl LsCommon for #name {
+        impl LsBits for #name {
             #[inline(always)]
             fn p(&self) -> bool { get_p!(self.0) }
             #[inline(always)]
@@ -95,14 +90,14 @@ fn impl_ls_common(ast: &syn::DeriveInput) -> quote::Tokens {
     }
 }
 
-#[proc_macro_derive(ImmCommon)]
+#[proc_macro_derive(ImmBits)]
 pub fn derive_imm_common(input: TokenStream) -> TokenStream {
     return get_tokenstream!(input, impl_imm_common);
 }
 fn impl_imm_common(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl ImmCommon for #name {
+        impl ImmBits for #name {
             #[inline(always)]
             fn imm8(&self) -> u32 { get_imm8!(self.0) }
             #[inline(always)]
@@ -115,14 +110,14 @@ fn impl_imm_common(ast: &syn::DeriveInput) -> quote::Tokens {
 }
 
 
-#[proc_macro_derive(BranchCommon)]
+#[proc_macro_derive(BranchBits)]
 pub fn derive_branch_common(input: TokenStream) -> TokenStream {
     return get_tokenstream!(input, impl_branch_common);
 }
 fn impl_branch_common(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl BranchCommon for #name {
+        impl BranchBits for #name {
             #[inline(always)]
             fn link(&self) -> bool { get_link!(self.0) }
         }
@@ -130,14 +125,14 @@ fn impl_branch_common(ast: &syn::DeriveInput) -> quote::Tokens {
 }
 
 
-#[proc_macro_derive(RotCommon)]
+#[proc_macro_derive(RotBits)]
 pub fn derive_rot_common(input: TokenStream) -> TokenStream {
     return get_tokenstream!(input, impl_rot_common);
 }
 fn impl_rot_common(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl RotCommon for #name {
+        impl RotBits for #name {
             #[inline(always)]
             fn rot_imm(&self) -> u32 { get_rot_imm!(self.0) }
         }
@@ -145,14 +140,14 @@ fn impl_rot_common(ast: &syn::DeriveInput) -> quote::Tokens {
 }
 
 
-#[proc_macro_derive(ShiftCommon)]
+#[proc_macro_derive(ShiftBits)]
 pub fn derive_shift_common(input: TokenStream) -> TokenStream {
     return get_tokenstream!(input, impl_shift_common);
 }
 fn impl_shift_common(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl ShiftCommon for #name {
+        impl ShiftBits for #name {
             #[inline(always)]
             fn shift_imm(&self) -> u32 { get_shift_imm!(self.0) }
             #[inline(always)]
@@ -161,14 +156,14 @@ fn impl_shift_common(ast: &syn::DeriveInput) -> quote::Tokens {
     }
 }
 
-#[proc_macro_derive(CoprocCommon)]
+#[proc_macro_derive(CoprocBits)]
 pub fn derive_coproc_common(input: TokenStream) -> TokenStream {
     return get_tokenstream!(input, impl_coproc_common);
 }
 fn impl_coproc_common(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl CoprocCommon for #name {
+        impl CoprocBits for #name {
             #[inline(always)]
             fn opcd1(&self) -> u32 { get_opcd1!(self.0) }
             #[inline(always)]
@@ -188,14 +183,14 @@ fn impl_coproc_common(ast: &syn::DeriveInput) -> quote::Tokens {
 }
 
 
-#[proc_macro_derive(RegCommon)]
+#[proc_macro_derive(RegBits)]
 pub fn derive_reg_common(input: TokenStream) -> TokenStream {
     return get_tokenstream!(input, impl_reg_common);
 }
 fn impl_reg_common(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl RegCommon for #name {
+        impl RegBits for #name {
             #[inline(always)]
             fn rn(&self) -> u32 { get_rn!(self.0) }
             #[inline(always)]
@@ -209,16 +204,36 @@ fn impl_reg_common(ast: &syn::DeriveInput) -> quote::Tokens {
 }
 
 
-#[proc_macro_derive(SrCommon)]
+#[proc_macro_derive(SrBits)]
 pub fn derive_sr_common(input: TokenStream) -> TokenStream {
     return get_tokenstream!(input, impl_sr_common);
 }
 fn impl_sr_common(ast: &syn::DeriveInput) -> quote::Tokens {
     let name = &ast.ident;
     quote! {
-        impl SrCommon for #name {
+        impl SrBits for #name {
             #[inline(always)]
             fn field_mask(&self) -> u32 { get_field_mask!(self.0) }
+        }
+    }
+}
+
+#[proc_macro_derive(MultiplyBits)]
+pub fn derive_multiply_common(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_multiply_common);
+}
+fn impl_multiply_common(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl MultiplyBits for #name {
+            #[inline(always)]
+            fn rd_hi(&self) -> u32 { get_rd_hi!(self.0) }
+            #[inline(always)]
+            fn rd_lo(&self) -> u32 { get_rd_lo!(self.0) }
+            #[inline(always)]
+            fn a(&self) -> u32 { get_a!(self.0) }
+            #[inline(always)]
+            fn un(&self) -> u32 { get_un!(self.0) }
         }
     }
 }

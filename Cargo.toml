@@ -6,4 +6,5 @@ edition = "2018"
 
 [dependencies]
 armbf = { path = "bf/armbf" }
+armbf_prim = { path = "bf/armbf_prim" }
 
