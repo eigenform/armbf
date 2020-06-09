@@ -19,7 +19,7 @@ pub fn arm_decode_control(x: u32) -> ArmInst {
         }
         0b0001 => {
             if bit!(x, 22) { return ArmInst::Clz; } 
-            else { return ArmInst::Bx; }
+            else { return ArmInst::Bx(BxBf(x)); }
         },
         0b0010 => ArmInst::Bxj,
         0b0011 => ArmInst::Blx,
@@ -113,7 +113,7 @@ pub fn decode(x: u32) -> ArmInst {
         },
 
         // Load/store (immediate offset)
-        0b010 => ArmInst::LsImm,
+        0b010 => ArmInst::LsImm(LsImmBf(x)),
 
         // Load/store (shifter offset).
         // One exception for media instructions (which we don't support).
@@ -124,7 +124,7 @@ pub fn decode(x: u32) -> ArmInst {
         },
 
         // Load/store multiple instructions
-        0b100 => ArmInst::LsMulti,
+        0b100 => ArmInst::LsMulti(LsMultiBf(x)),
 
         // Branch instructions
         0b101 => ArmInst::Branch,

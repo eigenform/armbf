@@ -19,7 +19,7 @@ pub enum ArmInst {
     Msr,
 
     // Control instructions (branch and exchange)
-    Bx, 
+    Bx(BxBf), 
     Blx, 
     Bxj, 
 
@@ -71,8 +71,8 @@ pub enum ArmInst {
     
     // Load/store instructions
     LsShift, 
-    LsImm, 
-    LsMulti,
+    LsImm(LsImmBf), 
+    LsMulti(LsMultiBf),
 
     // Branching instructions
     Branch,

@@ -27,10 +27,12 @@ declare_instr_fields!(DpRotImmBf, DpBits, RegBits, RotBits, ImmBits);
 
 pub struct DpMultiply(pub u32);
 
-declare_instr_fields!(LsImm, LsBits, RegBits, ImmBits);
-declare_instr_fields!(LsShift, LsBits, RegBits, ShiftBits);
-declare_instr_fields!(LsMulti, LsBits, RegBits, LsMultiBits);
-declare_instr_fields!(Branch, BranchBits, ImmBits);
+declare_instr_fields!(LsImmBf, LsBits, RegBits, ImmBits);
+declare_instr_fields!(LsShiftBf, LsBits, RegBits, ShiftBits);
+declare_instr_fields!(LsMultiBf, LsBits, RegBits, LsMultiBits);
+declare_instr_fields!(BranchBf, BranchBits, ImmBits);
+
+declare_instr_fields!(BxBf, RegBits);
 
 #[repr(transparent)]
 pub struct CoprocLs(pub u32);
