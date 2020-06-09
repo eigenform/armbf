@@ -1,4 +1,3 @@
-
 //! Traits implemented on newtypes for representing bitfields.
 //!
 //! These traits describe some set of bitfields that may or may not belong to

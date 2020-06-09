@@ -2,43 +2,59 @@
 
 use crate::newtype::*;
 
-/// Unique types/kinds of instructions.
+/// Unique types/kinds of ARM instructions.
 ///
-/// The inner type is some transparent wrapper type around a u32.
-/// Users will need to pattern match against this in order to use it.
+/// Each variant in this enum has a corresponding inner newtype which wraps
+/// a u32. Each newtype derives a set of traits which describe the valid set
+/// of bitfields that one might want when decoding the instruction.
+
 #[derive(Debug)]
 pub enum ArmInst {
     // Undefined instruction
     None,
 
-    // Control instructions
+    // Control instructions (status register)
     MrsReg, 
     MrsImm, 
     Msr,
+
+    // Control instructions (branch and exchange)
     Bx, 
     Blx, 
     Bxj, 
-    Clz,
+
+    // Control instructions (saturated add/sub)
     Qadd, 
     Qsub, 
     QdAdd, 
     QdSub,
+
+    // Control instructions (signed multiply)
     Smla,
     Smlaw, 
     Smulw, 
     Smlal, 
     Smul,
+
+    // Control instructions (other)
+    Clz,
     Bkpt,
 
-    // Misc. load/store instructions
+    // Misc. load/store instructions (swap byte)
     Swp, 
     Swpb,
+
+    // Misc. load/store instructions (load halfword)
     LdrhImm, 
     LdrhReg,
+
+    // Misc. load/store instructions (load/store halfword/doubleword)
     StrdLdrdImm, 
     StrdLdrdReg,
     StrhLdrhReg, 
     StrhLdrhImm,
+
+    // Misc. load/store instructions (load signed byte/halfword)
     LdrshImm, 
     LdrshReg,
     LdrsbImm, 
@@ -66,7 +82,7 @@ pub enum ArmInst {
     CoprocDp, 
     CoprocRt, 
 
-    // Software interupts
+    // Software interrupts
     Swi,
 }
 impl Default for ArmInst { fn default() -> Self { ArmInst::None } }

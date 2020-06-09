@@ -64,7 +64,7 @@ pub fn arm_decode_lsmisc(x: u32) -> ArmInst {
             if bit!(x, 22) { return ArmInst::StrhLdrhImm; } 
             else { return ArmInst::StrhLdrhReg; }
         },
-        0b1101 | 0b1110 => {
+        0b1101 | 0b1110 | 0b1111 => {
             let tbl = (bit!(x, 20), bit!(x, 22), bit!(x, 5));
             return match tbl {
                 (true, false, false) => ArmInst::LdrsbReg,
@@ -75,7 +75,7 @@ pub fn arm_decode_lsmisc(x: u32) -> ArmInst {
                 (false, true, _) =>     ArmInst::StrdLdrdImm,
             }
         },
-        _ => unreachable!(),
+        _ => unreachable!("Instruction {:08x} {:032b}", x, x),
     }
 }
 
