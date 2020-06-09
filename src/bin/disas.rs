@@ -36,6 +36,41 @@ pub mod dis {
     //    format!("{} ",)
     //}
 
+    pub fn ls_multi(op: &LsMultiBf) -> String {
+        let mut reglist_str = std::string::String::new();
+        for idx in 0..15 {
+            if (op.reglist() & (1 << idx)) != 0 {
+                reglist_str.push_str(
+                    format!("{}, ", Register::from_u32(idx)).as_ref()
+                );
+            }
+        }
+        reglist_str.truncate(reglist_str.len() - 2);
+
+        let rn = Register::from_u32(op.rn());
+        let name = match (op.l(), &rn) {
+            (true,  Register::sp) => "pop".to_string(),
+            (false, Register::sp) => "push".to_string(),
+            (true,  _) => format!("ldm {},", rn),
+            (false, _) => format!("stm {},", rn),
+        };
+
+        format!("{} {{{}}}", name, reglist_str,)
+    }
+
+
+
+    pub fn dp_rot_imm(op: &DpRotImmBf) -> String {
+        format!("{}{} {}, #{}",
+            Opcode::from_u32(op.opcd()),
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rn()),
+            op.imm8(),
+        )
+    }
+
+
+
     pub fn bx(op: &BxBf) -> String {
         format!("bx{} {}", 
             Cond::from_u32(op.cond()),
@@ -70,7 +105,9 @@ pub mod dis {
 
 fn get_disas_str(op: &ArmInst) -> String {
     match op {
+        ArmInst::LsMulti(bf) =>  dis::ls_multi(bf),
         ArmInst::DpShiftImm(bf) =>  dis::dp_shift_imm(bf),
+        ArmInst::DpRotImm(bf) =>  dis::dp_rot_imm(bf),
         ArmInst::LsImm(bf) =>    dis::ls_imm(bf),
         ArmInst::Bx(bf) =>    dis::bx(bf),
         _ => format!("{:?}",op).to_string(),
