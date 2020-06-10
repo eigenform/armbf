@@ -14,8 +14,8 @@ use armbf_prim::*;
 pub fn arm_decode_control(x: u32) -> ArmInst {
     match get_control_opcd!(x) {
         0b0000 => {
-            if bit!(x, 21) { return ArmInst::MrsReg; } 
-            else { return ArmInst::Msr; }
+            if bit!(x, 21) { return ArmInst::MrsReg(StatusBf(x)); } 
+            else { return ArmInst::Msr(StatusBf(x)); }
         }
         0b0001 => {
             if bit!(x, 22) { return ArmInst::Clz(ClzBf(x)); } 
@@ -90,12 +90,13 @@ pub fn decode(x: u32) -> ArmInst {
         // instructions.
 
         0b000 => { 
-            if is_valid_lsmisc_instr!(x) { return arm_decode_lsmisc(x); }
-            if is_valid_control_instr!(x) { return arm_decode_control(x); }
+
             if is_valid_multiply_instr!(x) {
                 if bit!(x, 23) { return ArmInst::MulMla; } 
                 else { return ArmInst::UmulUmla; }
             }
+            if is_valid_lsmisc_instr!(x) { return arm_decode_lsmisc(x); }
+            if is_valid_control_instr!(x) { return arm_decode_control(x); }
 
             if bit!(x, 4) { return ArmInst::DpShiftReg(DpShiftRegBf(x)); } 
             ArmInst::DpShiftImm(DpShiftImmBf(x))
@@ -105,7 +106,7 @@ pub fn decode(x: u32) -> ArmInst {
         // There is only one exception for a single control instruction (mrs).
 
         0b001 => {
-            if is_valid_control_instr!(x) { return ArmInst::MrsImm; }
+            if is_valid_control_instr!(x) { return ArmInst::MrsImm(StatusBf(x)); }
             ArmInst::DpRotImm(DpRotImmBf(x))
         },
 
@@ -117,7 +118,7 @@ pub fn decode(x: u32) -> ArmInst {
 
         0b011 => { 
             if bit!(x, 4) { return ArmInst::None; }
-            ArmInst::LsShift
+            ArmInst::LsShift(LsShiftBf(x))
         },
 
         // Load/store multiple instructions
@@ -133,7 +134,7 @@ pub fn decode(x: u32) -> ArmInst {
         },
 
         // Coprocessor load/stores
-        0b110 => ArmInst::CoprocLs,
+        0b110 => ArmInst::CoprocLs(CoprocBf(x)),
 
         // Coprocessor [register transfer/data processing].
         // One exception for the software interrupt instruction.
@@ -144,8 +145,8 @@ pub fn decode(x: u32) -> ArmInst {
                 return ArmInst::None;
             }
 
-            if bit!(x, 4) { return ArmInst::CoprocRt; }
-            ArmInst::CoprocDp
+            if bit!(x, 4) { return ArmInst::CoprocRt(CoprocBf(x)); }
+            ArmInst::CoprocDp(CoprocBf(x))
         },
         _ => unreachable!(),
     };

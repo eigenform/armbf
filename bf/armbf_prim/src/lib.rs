@@ -324,6 +324,11 @@ macro_rules! get_signed_mul_op { ($val:expr) => {
 #[macro_export]
 macro_rules! get_field_mask { ($val:expr) => { get_rn!($val) }}
 
+#[macro_export]
+macro_rules! get_r { ($val:expr) => { 
+    ($val & 0b0000_0000_0100_0000_0000_0000_0000_0000) != 0
+}}
+
 
 // ----------------------------------------------------------------------------
 // Multiply bitfields

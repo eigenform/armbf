@@ -176,13 +176,13 @@ fn impl_coproc_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl CoprocBits for #name {
             #[inline(always)]
-            fn opcd1(&self) -> u32 { get_opcd1!(self.0) }
+            fn opcd1(&self) -> u32 { get_cp_opcd1!(self.0) }
             #[inline(always)]
-            fn opcd1_rt(&self) -> u32 { get_opcd1_rt!(self.0) }
+            fn opcd1_rt(&self) -> u32 { get_cp_opcd1_rt!(self.0) }
             #[inline(always)]
             fn cp_num(&self) -> u32 { get_cp_num!(self.0) }
             #[inline(always)]
-            fn opcd2(&self) -> u32 { get_opcd2!(self.0) }
+            fn opcd2(&self) -> u32 { get_cp_opcd2!(self.0) }
             #[inline(always)]
             fn crn(&self) -> u32 { get_crn!(self.0) }
             #[inline(always)]
@@ -225,6 +225,10 @@ fn impl_sr_common(ast: &syn::DeriveInput) -> quote::Tokens {
         impl SrBits for #name {
             #[inline(always)]
             fn field_mask(&self) -> u32 { get_field_mask!(self.0) }
+
+            #[inline(always)]
+            fn r(&self) -> bool { get_r!(self.0) }
+
         }
     }
 }

@@ -59,14 +59,17 @@ declare_instr_fields!(SwiBf, ImmBits);
 declare_instr_fields!(BkptBf, ImmBits);
 declare_instr_fields!(SatBf, RegBits);
 declare_instr_fields!(ClzBf, RegBits);
+declare_instr_fields!(CoprocBf, CoprocBits, LsBits, ImmBits);
+
+declare_instr_fields!(StatusBf, SrBits, RegBits, ImmBits, RotBits);
 
 pub struct DpMultiply(pub u32);
 
-#[repr(transparent)]
-pub struct CoprocLs(pub u32);
-#[repr(transparent)]
-pub struct CoprocDp(pub u32);
-#[repr(transparent)]
-pub struct CoprocRt(pub u32);
+//#[repr(transparent)]
+//pub struct CoprocLs(pub u32);
+//#[repr(transparent)]
+//pub struct CoprocDp(pub u32);
+//#[repr(transparent)]
+//pub struct CoprocRt(pub u32);
 
 

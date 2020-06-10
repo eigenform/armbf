@@ -56,6 +56,7 @@ pub trait ImmBits {
 /// Accessors for instructions that modify the status registers.
 pub trait SrBits {
     fn field_mask(&self) -> u32;
+    fn r(&self) -> bool;
 }
 
 /// Accessors in branching instructions.

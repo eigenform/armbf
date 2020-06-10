@@ -44,6 +44,8 @@ _branch_test:
 
 _load_store_test:
 	ldr r3, =_start
+	ldr r3, [r4, r5]
+	ldr r3, [r4, #2]
 	ldrb r3, =_start
 	ldrh r3, =_start
 	ldrh r3, [r4]
@@ -54,6 +56,8 @@ _load_store_test:
 	ldrsh r3, =_start
 	ldrsh r3, [r4, r5]
 	str r3, _start
+	str r3, [r4, r5]
+	str r3, [r4, #2]
 	strb r3, _start
 	strh r3, _start
 	strh r3, [r4, #2]

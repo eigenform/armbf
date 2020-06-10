@@ -14,9 +14,9 @@ pub enum ArmInst {
     None,
 
     // Control instructions (status register)
-    MrsReg, 
-    MrsImm, 
-    Msr,
+    MrsReg(StatusBf), 
+    MrsImm(StatusBf), 
+    Msr(StatusBf),
 
     // Control instructions (branch and exchange)
     Bx(BxBf), 
@@ -70,7 +70,7 @@ pub enum ArmInst {
     DpRotImm(DpRotImmBf),
     
     // Load/store instructions
-    LsShift, 
+    LsShift(LsShiftBf), 
     LsImm(LsImmBf), 
     LsMulti(LsMultiBf),
 
@@ -78,9 +78,9 @@ pub enum ArmInst {
     Branch(BranchBf),
 
     // Coprocessor instructions
-    CoprocLs, 
-    CoprocDp, 
-    CoprocRt, 
+    CoprocLs(CoprocBf), 
+    CoprocDp(CoprocBf), 
+    CoprocRt(CoprocBf), 
 
     // Software interrupts
     Swi(SwiBf),
