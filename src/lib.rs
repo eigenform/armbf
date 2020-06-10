@@ -35,16 +35,16 @@ pub fn arm_decode_control(x: u32) -> ArmInst {
         0b0111 => ArmInst::Bkpt(BkptBf(x)),
         0b1000 | 0b1010 | 0b1100 | 0b1110 => {
             match get_signed_mul_op!(x) {
-                0b00 => ArmInst::Smla(SmulBf(x)),
+                0b00 => ArmInst::SmlaXy(MulBf(x)),
                 0b01 => {
                     if bit!(x, 5) { 
-                        return ArmInst::Smulw(SmulBf(x));
+                        return ArmInst::SmulwY(MulBf(x));
                     } else { 
-                        return ArmInst::Smlaw(SmulBf(x));
+                        return ArmInst::SmlawY(MulBf(x));
                     }
                 }
-                0b10 => ArmInst::Smlal(SmulBf(x)),
-                0b11 => ArmInst::Smul(SmulBf(x)),
+                0b10 => ArmInst::SmlalXy(MulBf(x)),
+                0b11 => ArmInst::SmulXy(MulBf(x)),
                 _ => unreachable!(),
             }
         },
@@ -65,14 +65,29 @@ pub fn arm_decode_lsmisc(x: u32) -> ArmInst {
             let tbl = (bit!(x, 20), bit!(x, 22), bit!(x, 5));
             return match tbl {
                 (true, false, false) => ArmInst::LdrsbReg(LdrsbRegBf(x)),
-                (true, false, true) =>  ArmInst::LdrshReg(LdrshRegBf(x)),
-                (true, true, false) =>  ArmInst::LdrsbImm(LdrsbImmBf(x)),
-                (true, true, true) =>   ArmInst::LdrshImm(LdrshImmBf(x)),
-                (false, false, _) =>    ArmInst::StrdLdrdReg(StrdLdrdRegBf(x)),
-                (false, true, _) =>     ArmInst::StrdLdrdImm(StrdLdrdImmBf(x)),
+                (true, false, true) => ArmInst::LdrshReg(LdrshRegBf(x)),
+                (true, true, false) => ArmInst::LdrsbImm(LdrsbImmBf(x)),
+                (true, true, true) => ArmInst::LdrshImm(LdrshImmBf(x)),
+                (false, false, _) => ArmInst::StrdLdrdReg(StrdLdrdRegBf(x)),
+                (false, true, _) => ArmInst::StrdLdrdImm(StrdLdrdImmBf(x)),
             }
         },
         _ => unreachable!("Instruction {:08x} {:032b}", x, x),
+    }
+}
+
+#[inline(always)]
+pub fn arm_decode_multiply(x: u32) -> ArmInst {
+    match (bit!(x, 23), bit!(x, 22), bit!(x, 21)) {
+        (false, false, false) => return ArmInst::Mul(MulBf(x)),
+        (false, false, true) => return ArmInst::Mla(MulBf(x)),
+
+        (true, false, false) => return ArmInst::Umull(MulBf(x)), 
+        (true, false, true) => return ArmInst::Umlal(MulBf(x)), 
+
+        (true, true, false) => return ArmInst::Smull(MulBf(x)),
+        (true, true, true) => return ArmInst::Smlal(MulBf(x)),
+        _ => unreachable!(),
     }
 }
 
@@ -90,11 +105,7 @@ pub fn decode(x: u32) -> ArmInst {
         // instructions.
 
         0b000 => { 
-
-            if is_valid_multiply_instr!(x) {
-                if bit!(x, 23) { return ArmInst::MulMla(MulBf(x)); } 
-                else { return ArmInst::UmulUmla(MulBf(x)); }
-            }
+            if is_valid_multiply_instr!(x) { return arm_decode_multiply(x); }
             if is_valid_lsmisc_instr!(x) { return arm_decode_lsmisc(x); }
             if is_valid_control_instr!(x) { return arm_decode_control(x); }
 

@@ -30,12 +30,6 @@ pub enum ArmInst {
     QdAdd(SatBf), 
     QdSub(SatBf),
 
-    // Control instructions (signed multiply)
-    Smla(SmulBf),
-    Smlaw(SmulBf), 
-    Smulw(SmulBf), 
-    Smlal(SmulBf), 
-    Smul(SmulBf),
 
     // Control instructions (other)
     Clz(ClzBf),
@@ -56,9 +50,26 @@ pub enum ArmInst {
     LdrsbImm(LdrsbImmBf), 
     LdrsbReg(LdrsbRegBf),
 
+    // Control instructions (extended signed multiply)
+    SmlaXy(MulBf),
+    SmlalXy(MulBf), 
+    SmulXy(MulBf),
+    SmlawY(MulBf), 
+    SmulwY(MulBf), 
+
     // Multiply instructions
-    MulMla(MulBf), 
-    UmulUmla(MulBf),
+    Mul(MulBf),
+    Mla(MulBf),
+    Umull(MulBf),
+    Umla(MulBf),
+    Umlal(MulBf),
+
+    // ARMv6
+    //Umaal(MulBf),
+
+    Smlal(MulBf), 
+    Smull(MulBf),
+
 
     // Data-processing instructions
     DpShiftReg(DpShiftRegBf), 

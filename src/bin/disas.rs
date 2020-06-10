@@ -58,6 +58,27 @@ pub mod dis {
         )
     }
 
+    pub fn qadd(op: &SatBf) -> String { format!("qadd{}\t {}, {}, {}",
+            Cond::from_u32(op.cond()), Register::from_u32(op.rd()),
+            Register::from_u32(op.rm()), Register::from_u32(op.rn()),
+        )
+    }
+    pub fn qdadd(op: &SatBf) -> String { format!("qdadd{}\t {}, {}, {}",
+            Cond::from_u32(op.cond()), Register::from_u32(op.rd()),
+            Register::from_u32(op.rm()), Register::from_u32(op.rn()),
+        )
+    }
+    pub fn qsub(op: &SatBf) -> String { format!("qsub{}\t {}, {}, {}",
+            Cond::from_u32(op.cond()), Register::from_u32(op.rd()),
+            Register::from_u32(op.rm()), Register::from_u32(op.rn()),
+        )
+    }
+    pub fn qdsub(op: &SatBf) -> String { format!("qdsub{}\t {}, {}, {}",
+            Cond::from_u32(op.cond()), Register::from_u32(op.rd()),
+            Register::from_u32(op.rm()), Register::from_u32(op.rn()),
+        )
+    }
+
     //
     // Load/store instructions
     //
@@ -96,6 +117,18 @@ pub mod dis {
         format!("{}\t {{{}}}", name, reglist_str,)
     }
 
+    pub fn swp(op: &SwpBf) -> String { 
+        let name = if op.b() { "swpb" } else { "swp" };
+        format!("{}\t {}, {}, [{}]", 
+            name,
+            Register::from_u32(op.rd()),
+            Register::from_u32(op.rm()),
+            Register::from_u32(op.rn()),
+        )
+    }
+
+
+
     //
     // Data processing instructions
     //
@@ -119,6 +152,18 @@ pub mod dis {
     // Branching instructions
     //
 
+    pub fn blx_imm(op: &BranchBf, offset: u32) -> String { 
+        let imm24 = sign_extend(op.imm24() as i32, 24) << 2;
+        let dest = (offset as i64) + (imm24 as i64) + 8;
+        format!("blx{}\t {:04x}",
+            Cond::from_u32(op.cond()),
+            dest
+        )
+    }
+    pub fn blx_reg(op: &BranchBf) -> String { 
+        format!("blx\t {}", Register::from_u32(op.rm()))
+    }
+
     pub fn bx(op: &BxBf) -> String { format!("bx{}\t {}", 
         Cond::from_u32(op.cond()), Register::from_u32(op.rm()))
     }
@@ -126,30 +171,188 @@ pub mod dis {
         let name = if op.link() { "bl" } else { "b" };
         let imm24 = sign_extend(op.imm24() as i32, 24) << 2;
         let dest = (offset as i64) + (imm24 as i64) + 8;
-        format!("{}{}\t {:x}",
+        format!("{}{}\t {:04x}",
             name, 
             Cond::from_u32(op.cond()),
             dest,
         )
     }
+
+    //
+    // Multiply instructions (extended)
+    //
+
+    pub fn smla_xy(op: &MulBf) -> String {
+        let xy = match (op.x(), op.y()) {
+            (false, false) => "bb", (false, true) => "bt",
+            (true, false) => "tb", (true, true) => "tt",
+        };
+        format!("slma{}{}\t {}, {}, {}, {}", xy,
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rd_alt()),
+            Register::from_u32(op.rm()),
+            Register::from_u32(op.rs()),
+            Register::from_u32(op.rn_alt()),
+        )
+    }
+
+    pub fn smlal_xy(op: &MulBf) -> String {
+        let xy = match (op.x(), op.y()) {
+            (false, false) => "bb", (false, true) => "bt",
+            (true, false) => "tb", (true, true) => "tt",
+        };
+        format!("slmal{}{} {}, {}, {}, {}", xy,
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rn_alt()),
+            Register::from_u32(op.rd_alt()),
+            Register::from_u32(op.rm()),
+            Register::from_u32(op.rs()),
+        )
+    }
+
+    pub fn smul_xy(op: &MulBf) -> String {
+        let xy = match (op.x(), op.y()) {
+            (false, false) => "bb", (false, true) => "bt",
+            (true, false) => "tb", (true, true) => "tt",
+        };
+        format!("smul{}{}  {}, {}, {}", xy,
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rd_alt()),
+            Register::from_u32(op.rm()),
+            Register::from_u32(op.rs()),
+        )
+    }
+
+    pub fn smlaw_y(op: &MulBf) -> String {
+        let y = if op.y() { "t" } else { "b" };
+        format!("slmaw{}{}  {}, {}, {}, {}", y,
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rd_alt()),
+            Register::from_u32(op.rm()),
+            Register::from_u32(op.rs()),
+            Register::from_u32(op.rn_alt()),
+        )
+    }
+
+    pub fn smulw_y(op: &MulBf) -> String {
+        let y = if op.y() { "t" } else { "b" };
+        format!("smulw{}{}  {}, {}, {}", y,
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rd_alt()),
+            Register::from_u32(op.rm()),
+            Register::from_u32(op.rs()),
+        )
+    }
+
+    //
+    // Multiply instructions
+    //
+
+    pub fn mul(op: &MulBf) -> String {
+        format!("mul{}\t {}, {}, {}",
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rd_alt()),
+            Register::from_u32(op.rm()),
+            Register::from_u32(op.rs()),
+        )
+    }
+    pub fn mla(op: &MulBf) -> String {
+        format!("mul{}\t {}, {}, {}, {}",
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rd_alt()),
+            Register::from_u32(op.rm()),
+            Register::from_u32(op.rs()),
+            Register::from_u32(op.rn_alt()),
+        )
+    }
+
+    pub fn umull(op: &MulBf) -> String {
+        format!("umull{}\t {}, {}, {}, {}",
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rd_lo()),
+            Register::from_u32(op.rd_hi()),
+            Register::from_u32(op.rm()),
+            Register::from_u32(op.rs()),
+        )
+    }
+
+    pub fn umlal(op: &MulBf) -> String {
+        format!("umlal{}\t {}, {}, {}, {}",
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rd_lo()),
+            Register::from_u32(op.rd_hi()),
+            Register::from_u32(op.rm()),
+            Register::from_u32(op.rs()),
+        )
+    }
+
+    pub fn smlal(op: &MulBf) -> String {
+        format!("smlal{}\t {}, {}, {}, {}",
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rd_lo()),
+            Register::from_u32(op.rd_hi()),
+            Register::from_u32(op.rm()),
+            Register::from_u32(op.rs()),
+        )
+    }
+
+    pub fn smull(op: &MulBf) -> String {
+        format!("smull{}\t {}, {}, {}, {}",
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rd_lo()),
+            Register::from_u32(op.rd_hi()),
+            Register::from_u32(op.rm()),
+            Register::from_u32(op.rs()),
+        )
+    }
+
 }
+
 
 fn get_disas_str(op: &ArmInst, offset: u32) -> String {
     match op {
         //ArmInst::DpShiftImm(bf) =>  dis::dp_shift_imm(bf),
         //ArmInst::DpRotImm(bf) =>    dis::dp_rot_imm(bf),
         
-        ArmInst::LsMulti(bf) =>     dis::ls_multi(bf),
-        ArmInst::LsImm(bf) =>       dis::ls_imm(bf),
-        ArmInst::Branch(bf) =>      dis::branch(bf, offset),
-        ArmInst::Bx(bf) =>          dis::bx(bf),
+        // Load/store
+        ArmInst::LsMulti(bf)    => dis::ls_multi(bf),
+        ArmInst::LsImm(bf)      => dis::ls_imm(bf),
 
-        ArmInst::Swi(bf) =>         dis::swi(bf),
-        ArmInst::Bkpt(bf) =>        dis::bkpt(bf),
+        // Branching
+        ArmInst::Branch(bf)     => dis::branch(bf, offset),
+        ArmInst::BlxImm(bf)     => dis::blx_imm(bf, offset),
+        ArmInst::BlxReg(bf)     => dis::blx_reg(bf),
+        ArmInst::Bx(bf)         => dis::bx(bf),
+
+        // Saturated add/sub
+        ArmInst::Qadd(bf)       => dis::qadd(bf),
+        ArmInst::Qsub(bf)       => dis::qsub(bf),
+        ArmInst::QdAdd(bf)      => dis::qdadd(bf),
+        ArmInst::QdSub(bf)      => dis::qdsub(bf),
+
+        // Signed multiply (extended)
+        ArmInst::SmlaXy(bf)     => dis::smla_xy(bf),
+        ArmInst::SmlalXy(bf)    => dis::smlal_xy(bf),
+        ArmInst::SmulXy(bf)     => dis::smul_xy(bf),
+        ArmInst::SmlawY(bf)     => dis::smlaw_y(bf),
+        ArmInst::SmulwY(bf)     => dis::smulw_y(bf),
+
+        // Multiply instructions
+        ArmInst::Mul(bf)        => dis::mul(bf),
+        ArmInst::Mla(bf)        => dis::mla(bf),
+        ArmInst::Umull(bf)      => dis::umull(bf),
+        ArmInst::Umlal(bf)      => dis::umlal(bf),
+        ArmInst::Smlal(bf)      => dis::smlal(bf),
+        ArmInst::Smull(bf)      => dis::smull(bf),
+
+        // Misc
+        ArmInst::Swi(bf)        => dis::swi(bf),
+        ArmInst::Bkpt(bf)       => dis::bkpt(bf),
+        ArmInst::Swp(bf)        => dis::swp(bf),
+
         _ => format!("{:?}",op).to_string(),
     }
 }
-
 
 
 // Read some code into a Vec<u32>, then just iterate and decode/interpret

@@ -38,13 +38,12 @@ declare_instr_fields!(LdrsbRegBf,       LsBits, RegBits, ImmBits);
 declare_instr_fields!(LdrshImmBf,       LsBits, RegBits, ImmBits);
 declare_instr_fields!(LdrshRegBf,       LsBits, RegBits, ImmBits);
 
-declare_instr_fields!(SmulBf,           RegBits, MultiplyBits);
 declare_instr_fields!(MulBf,            RegBits, MultiplyBits);
 
-declare_instr_fields!(BranchBf,         BranchBits, ImmBits);
+declare_instr_fields!(BranchBf,         BranchBits, ImmBits, RegBits);
 declare_instr_fields!(BxBf,             RegBits);
 
-declare_instr_fields!(SwpBf,            RegBits);
+declare_instr_fields!(SwpBf,            RegBits, LsBits);
 declare_instr_fields!(SwiBf,            ImmBits);
 declare_instr_fields!(BkptBf,           ImmBits);
 declare_instr_fields!(SatBf,            RegBits);

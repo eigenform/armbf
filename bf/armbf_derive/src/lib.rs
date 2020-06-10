@@ -210,6 +210,11 @@ fn impl_reg_common(ast: &syn::DeriveInput) -> quote::Tokens {
             fn rm(&self) -> u32 { get_rm!(self.0) }
             #[inline(always)]
             fn rs(&self) -> u32 { get_rs!(self.0) }
+
+            #[inline(always)]
+            fn rd_alt(&self) -> u32 { get_rn!(self.0) }
+            #[inline(always)]
+            fn rn_alt(&self) -> u32 { get_rd!(self.0) }
         }
     }
 }
