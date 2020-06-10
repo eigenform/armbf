@@ -181,7 +181,7 @@ macro_rules! get_imm24 { ($val:expr) => {
 
 #[macro_export]
 macro_rules! get_off_hi { ($val:expr) => {
-    ($val & 0b0000_0000_0000_0000_0000_1111_0000_0000)
+    ($val & 0b0000_0000_0000_0000_0000_1111_0000_0000) >> 8
 }}
 
 #[macro_export]

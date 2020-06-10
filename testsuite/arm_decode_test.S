@@ -48,24 +48,37 @@ _loadstore:
 	ldr r3, =_loadstore
 	ldr r3, [r4, r5]
 	ldr r3, [r4, #2]
+	str r3, _loadstore
+	str r3, [r4, r5]
+	str r3, [r4, #2]
+
+_loadstore_byte:
 	ldrb r3, =_loadstore
+	strb r3, _loadstore
+
+_loadstore_half:
 	ldrh r3, =_loadstore
 	ldrh r3, [r4]
 	ldrh r3, [r4, #4]
 	ldrh r3, [r4, r5]
-	ldrsb r3, =_loadstore
-	ldrsb r3, [r4, r5]
-	ldrsh r3, =_loadstore
-	ldrsh r3, [r4, r5]
-	str r3, _loadstore
-	str r3, [r4, r5]
-	str r3, [r4, #2]
-	strb r3, _loadstore
 	strh r3, _loadstore
+	strh r3, [r4]
 	strh r3, [r4, #2]
 	strh r3, [r4, r5]
+
+_loadstore_shalf:
+	ldrsh r3, =_loadstore
+	ldrsh r3, [r4, r5]
+
+_loadstore_sbyte:
+	ldrsb r3, =_loadstore
+	ldrsb r3, [r4, r5]
+
+_swap:
 	swp r3, r4, [r5]
 	swpb r3, r4, [r5]
+
+_loadstore_multi:
 	push { r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr, pc }
 	ldm sp, {r4, r5, r6, r7, r8, r9, sl, fp, sp, lr }
 

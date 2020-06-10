@@ -127,6 +127,32 @@ pub mod dis {
         )
     }
 
+    pub fn ls_halfword_imm(op: &StrhLdrhImmBf) -> String {
+        let name = if op.l() { "ldrh" } else { "strh" };
+        let imm = if op.u() {
+            ((op.off_hi() << 4) | op.off_lo()) as i32
+        } else {
+            (((op.off_hi() << 4) | op.off_lo()) as i32).wrapping_neg()
+        };
+        format!("{}{}\t {}, [{}, #{}]",
+            name,
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rd()),
+            Register::from_u32(op.rn()),
+            imm,
+        )
+    }
+
+    pub fn ls_halfword_reg(op: &StrhLdrhRegBf) -> String {
+        let name = if op.l() { "ldrh" } else { "strh" };
+        format!("{}{}\t {}, [{}, {}]",
+            name,
+            Cond::from_u32(op.cond()),
+            Register::from_u32(op.rd()),
+            Register::from_u32(op.rn()),
+            Register::from_u32(op.rm()),
+        )
+    }
 
 
     //
@@ -317,6 +343,8 @@ fn get_disas_str(op: &ArmInst, offset: u32) -> String {
         // Load/store
         ArmInst::LsMulti(bf)    => dis::ls_multi(bf),
         ArmInst::LsImm(bf)      => dis::ls_imm(bf),
+        ArmInst::StrhLdrhImm(bf) => dis::ls_halfword_imm(bf),
+        ArmInst::StrhLdrhReg(bf) => dis::ls_halfword_reg(bf),
 
         // Branching
         ArmInst::Branch(bf)     => dis::branch(bf, offset),
