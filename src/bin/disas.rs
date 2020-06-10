@@ -159,20 +159,105 @@ pub mod dis {
     // Data processing instructions
     //
 
-    pub fn dp_rot_imm(op: &DpRotImmBf) -> String { format!("{}{}\t {}, #{}",
-            Opcode::from_u32(op.opcd()),
-            Cond::from_u32(op.cond()),
-            Register::from_u32(op.rn()),
-            op.imm8(),
-        )
+
+
+    pub fn dp_rot_imm(op: &DpRotImmBf) -> String { 
+        let opcd = Opcode::from_u32(op.opcd());
+        let cond = Cond::from_u32(op.cond());
+        let rn = Register::from_u32(op.rn());
+        let rd = Register::from_u32(op.rd());
+        let imm8 = op.imm8();
+
+        return match opcd {
+            Opcode::Cmp => format!("{}{}\t {}, #{}", opcd, cond, rn, imm8),
+            Opcode::Cmn => format!("{}{}\t {}, #{}", opcd, cond, rn, imm8),
+            Opcode::Mov => format!("{}{}\t {}, #{}", opcd, cond, rd, imm8),
+            Opcode::Mvn => format!("{}{}\t {}, #{}", opcd, cond, rd, imm8),
+            Opcode::Teq => format!("{}{}\t {}, #{}", opcd, cond, rn, imm8),
+            Opcode::Tst => format!("{}{}\t {}, #{}", opcd, cond, rn, imm8),
+            _ => format!("{}{}\t {}, {}, #{}", opcd, cond, rd, rn, imm8),
+        };
+
     }
 
-    pub fn dp_shift_imm(op: &DpShiftImmBf) -> String { format!("{}\t {}, {}", 
-            Opcode::from_u32(op.opcd()),
-            Register::from_u32(op.rd()),
-            Register::from_u32(op.rn()),
-        )
+    pub fn dp_shift_imm(op: &DpShiftImmBf) -> String { 
+        let opcd = Opcode::from_u32(op.opcd());
+        let cond = Cond::from_u32(op.cond());
+        let rn = Register::from_u32(op.rn());
+        let rd = Register::from_u32(op.rd());
+        let rm = Register::from_u32(op.rm());
+        let shift_imm = op.shift_imm();
+        let shift_type = ShifterType::from_u32(op.shift());
+
+        match opcd {
+            Opcode::Cmn => { format!("{}{}\t {}, {}", opcd, cond, rn, 
+                format!("{}, {} #{}", rm, shift_type, shift_imm))
+            },
+            Opcode::Cmp => { format!("{}{}\t {}, {}", opcd, cond, rn, 
+                format!("{}, {} #{}", rm, shift_type, shift_imm))
+            },
+
+            Opcode::Mov => { format!("{}{}\t {}, {}, #{}", 
+                shift_type, cond, rd, rm, shift_imm)
+            },
+
+            Opcode::Mvn => { format!("{}{}\t {}, {}, {} #{}", 
+                opcd, cond, rd, rm, shift_type, shift_imm)
+            },
+
+            Opcode::Teq => { format!("{}{}\t {}, {}", opcd, cond, rn, 
+                format!("{}, {} #{}", rm, shift_type, shift_imm))
+            },
+            Opcode::Tst => { format!("{}{}\t {}, {}", opcd, cond, rn, 
+                format!("{}, {} #{}", rm, shift_type, shift_imm))
+            },
+            _ => { format!("{}{}\t {}, {}, {} {} #{}", opcd, cond, rd, rn, 
+                rm, shift_type, shift_imm)
+            },
+        }
     }
+
+    pub fn dp_shift_reg(op: &DpShiftRegBf) -> String { 
+        let opcd = Opcode::from_u32(op.opcd());
+        let cond = Cond::from_u32(op.cond());
+        let rn = Register::from_u32(op.rn());
+        let rd = Register::from_u32(op.rd());
+        let rm = Register::from_u32(op.rm());
+        let rs = Register::from_u32(op.rs());
+        let shift_type = ShifterType::from_u32(op.shift());
+
+        match opcd {
+            Opcode::Cmn => { format!("{}{}\t {}, {}", opcd, cond, rn, 
+                format!("{}, {} {}", rm, shift_type, rs))
+            },
+            Opcode::Cmp => { format!("{}{}\t {}, {}", opcd, cond, rn, 
+                format!("{}, {} {}", rm, shift_type, rs))
+            },
+
+            Opcode::Mov => { format!("{}{}\t {}, {}, {}", 
+                shift_type, cond, rd, rm, rs)
+            },
+
+            Opcode::Mvn => { format!("{}{}\t {}, {}, {} {}", 
+                opcd, cond, rd, rm, shift_type, rs)
+            },
+
+            Opcode::Teq => { format!("{}{}\t {}, {}", opcd, cond, rn, 
+                format!("{}, {} {}", rm, shift_type, rs))
+            },
+            Opcode::Tst => { format!("{}{}\t {}, {}", opcd, cond, rn, 
+                format!("{}, {} {}", rm, shift_type, rs))
+            },
+            _ => { format!("{}{}\t {}, {}, {} {} {}", opcd, cond, rd, rn, 
+                rm, shift_type, rs)
+            },
+        }
+    }
+
+
+
+
+
 
     //
     // Branching instructions
@@ -337,12 +422,16 @@ pub mod dis {
 
 fn get_disas_str(op: &ArmInst, offset: u32) -> String {
     match op {
-        //ArmInst::DpShiftImm(bf) =>  dis::dp_shift_imm(bf),
-        //ArmInst::DpRotImm(bf) =>    dis::dp_rot_imm(bf),
+
+        // Data-processing
+        ArmInst::DpRotImm(bf)   => dis::dp_rot_imm(bf),
+        ArmInst::DpShiftImm(bf) => dis::dp_shift_imm(bf),
+        ArmInst::DpShiftReg(bf) => dis::dp_shift_reg(bf),
         
         // Load/store
         ArmInst::LsMulti(bf)    => dis::ls_multi(bf),
         ArmInst::LsImm(bf)      => dis::ls_imm(bf),
+
         ArmInst::StrhLdrhImm(bf) => dis::ls_halfword_imm(bf),
         ArmInst::StrhLdrhReg(bf) => dis::ls_halfword_reg(bf),
 
@@ -398,11 +487,11 @@ fn main() {
 
 fn run(databuf: &Vec<u32>) {
     //let mut offset = 0x8018u32;
-    let mut offset = 0x0u32;
-    for val in databuf.iter() {
-        let instr = decode(*val);
-        let disas_str = get_disas_str(&instr, offset);
-        println!("{:04x}:\t {:08x}\t {}", offset, val, disas_str);
-        offset += 4;
-    }
+        let mut offset = 0x0u32;
+        for val in databuf.iter() {
+            let instr = decode(*val);
+            let disas_str = get_disas_str(&instr, offset);
+            println!("{:04x}:\t {:08x}\t {}", offset, val, disas_str);
+            offset += 4;
+        }
 }

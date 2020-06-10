@@ -162,26 +162,62 @@ impl fmt::Display for Register {
     }
 }
 
-   fn regname(x: u32) -> &'static str {
+
+pub enum ShifterType { Lsl, Lsr, Asr, Ror, }
+impl fmt::Display for ShifterType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ShifterType::Lsl => write!(f, "lsl"),
+            ShifterType::Lsr => write!(f, "lsr"),
+            ShifterType::Asr => write!(f, "asr"),
+            ShifterType::Ror => write!(f, "ror"),
+        }
+    }
+}
+impl ShifterType {
+    pub fn from_u32(x: u32) -> Self {
         match x {
-            0 => "r0",
-            1 => "r1",
-            2 => "r2",
-            3 => "r3",
-            4 => "r4",
-            5 => "r5",
-            6 => "r6",
-            7 => "r7",
-            8 => "r8",
-            9 => "r9",
-            10=> "r10",
-            11 => "r11",
-            12 => "ip",
-            13 => "sp",
-            14 => "lr",
-            15 => "pc",
+            0b00 => ShifterType::Lsl,
+            0b01 => ShifterType::Lsr,
+            0b10 => ShifterType::Asr,
+            0b11 => ShifterType::Ror,
             _ => unreachable!(),
         }
     }
+
+    pub fn compute(&self, val: u32, rot: u32) -> (u32, Option<bool>) {
+        if rot == 0 { return (val, None); }
+
+        return match self { 
+            ShifterType::Lsl => {(
+                (val << rot), 
+                Some((1 << (31 - rot) & val) != 0)
+            )},
+            ShifterType::Lsr => {(
+                (val << rot), 
+                Some((1 << (rot - 1) & val) != 0)
+            )},
+            ShifterType::Asr => {(
+                ((val as i32) >> rot) as u32, 
+                Some((1 << (rot - 1) & val) != 0)
+            )},
+            ShifterType::Ror => {(
+                val.rotate_right(rot), 
+                Some((val & 0x8000_0000) != 0)
+            )},
+        };
+    }
+}
+
+
+pub enum AddressingMode {
+    DataProc,
+    LoadStoreWordByte,
+    LoadStoreMisc,
+    LoadStoreMultiple,
+    LoadStoreCoproc,
+}
+
+
 
 
