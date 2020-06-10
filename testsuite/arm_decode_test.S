@@ -1,38 +1,185 @@
 // Just an exhaustive list of all the instructions we support.
 
 // Data-processing
-_dataproc:
+_dataproc_imm:
 	adc r4, r5, #4
-	adc r4, r5, r6
 	add r4, r5, #4
-	add r4, r5, r6
 	and r4, r5, #4
-	and r4, r5, r6
 	bic r4, r5, #4
-	bic r4, r5, r6
 	cmn r4, #4
-	cmn r4, r5
 	cmp r4, #4
-	cmp r4, r5
 	eor r4, r5, #4
-	eor r4, r5, r6
 	mov r3, #0xff
-	mov r3, r4
 	mvn r3, #0xff
-	mvn r3, r4
 	orr r4, r5, #4
-	orr r4, r5, r6
 	rsb r4, r5, #4
-	rsb r4, r5, r6
 	rsc r4, r5, #4
-	rsc r4, r5, r6
 	sbc r4, r5, #4
-	sbc r4, r5, r6
 	sub r4, r5, #4
-	sub r4, r5, r6
 	teq r3, #0xff
-	teq r3, r4
 	tst r3, #0xff
+
+_dataproc_shift:
+	adc r4, r5, r6, lsl #4
+	adc r4, r5, r6, lsr #4
+	adc r4, r5, r6, asr #4
+	adc r4, r5, r6, ror #4
+	adc r4, r5, r6, lsl r7
+	adc r4, r5, r6, lsr r7
+	adc r4, r5, r6, asr r7
+	adc r4, r5, r6, ror r7
+
+	add r4, r5, r6, lsl #4
+	add r4, r5, r6, lsr #4
+	add r4, r5, r6, asr #4
+	add r4, r5, r6, ror #4
+	add r4, r5, r6, lsl r7
+	add r4, r5, r6, lsr r7
+	add r4, r5, r6, asr r7
+	add r4, r5, r6, ror r7
+
+	and r4, r5, r6, lsl #4
+	and r4, r5, r6, lsr #4
+	and r4, r5, r6, asr #4
+	and r4, r5, r6, ror #4
+	and r4, r5, r6, lsl r7
+	and r4, r5, r6, lsr r7
+	and r4, r5, r6, asr r7
+	and r4, r5, r6, ror r7
+
+	bic r4, r5, r6, lsl #4
+	bic r4, r5, r6, lsr #4
+	bic r4, r5, r6, asr #4
+	bic r4, r5, r6, ror #4
+	bic r4, r5, r6, lsl r7
+	bic r4, r5, r6, lsr r7
+	bic r4, r5, r6, asr r7
+	bic r4, r5, r6, ror r7
+
+	cmn r4, r5, lsl #4
+	cmn r4, r5, lsr #4
+	cmn r4, r5, asr #4
+	cmn r4, r5, ror #4
+	cmn r4, r5, lsl r7
+	cmn r4, r5, lsr r7
+	cmn r4, r5, asr r7
+	cmn r4, r5, ror r7
+
+	cmp r4, r5, lsl #4
+	cmp r4, r5, lsr #4
+	cmp r4, r5, asr #4
+	cmp r4, r5, ror #4
+	cmp r4, r5, lsl r7
+	cmp r4, r5, lsr r7
+	cmp r4, r5, asr r7
+	cmp r4, r5, ror r7
+
+	eor r4, r5, r6, lsl #4
+	eor r4, r5, r6, lsr #4
+	eor r4, r5, r6, asr #4
+	eor r4, r5, r6, ror #4
+	eor r4, r5, r6, lsl r7
+	eor r4, r5, r6, lsr r7
+	eor r4, r5, r6, asr r7
+	eor r4, r5, r6, ror r7
+
+	mov r4, r5, lsl #4
+	mov r4, r5, lsr #4
+	mov r4, r5, asr #4
+	mov r4, r5, ror #4
+	mov r4, r5, lsl r7
+	mov r4, r5, lsr r7
+	mov r4, r5, asr r7
+	mov r4, r5, ror r7
+
+	mvn r4, r5, lsl #4
+	mvn r4, r5, lsr #4
+	mvn r4, r5, asr #4
+	mvn r4, r5, ror #4
+	mvn r4, r5, lsl r7
+	mvn r4, r5, lsr r7
+	mvn r4, r5, asr r7
+	mvn r4, r5, ror r7
+
+	orr r4, r5, r6, lsl #4
+	orr r4, r5, r6, lsr #4
+	orr r4, r5, r6, asr #4
+	orr r4, r5, r6, ror #4
+	orr r4, r5, r6, lsl r7
+	orr r4, r5, r6, lsr r7
+	orr r4, r5, r6, asr r7
+	orr r4, r5, r6, ror r7
+
+	rsb r4, r5, r6, lsl #4
+	rsb r4, r5, r6, lsr #4
+	rsb r4, r5, r6, asr #4
+	rsb r4, r5, r6, ror #4
+	rsb r4, r5, r6, lsl r7
+	rsb r4, r5, r6, lsr r7
+	rsb r4, r5, r6, asr r7
+	rsb r4, r5, r6, ror r7
+
+	rsc r4, r5, r6, lsl #4
+	rsc r4, r5, r6, lsr #4
+	rsc r4, r5, r6, asr #4
+	rsc r4, r5, r6, ror #4
+	rsc r4, r5, r6, lsl r7
+	rsc r4, r5, r6, lsr r7
+	rsc r4, r5, r6, asr r7
+	rsc r4, r5, r6, ror r7
+
+	sbc r4, r5, r6, lsl #4
+	sbc r4, r5, r6, lsr #4
+	sbc r4, r5, r6, asr #4
+	sbc r4, r5, r6, ror #4
+	sbc r4, r5, r6, lsl r7
+	sbc r4, r5, r6, lsr r7
+	sbc r4, r5, r6, asr r7
+	sbc r4, r5, r6, ror r7
+
+	sub r4, r5, r6, lsl #4
+	sub r4, r5, r6, lsr #4
+	sub r4, r5, r6, asr #4
+	sub r4, r5, r6, ror #4
+	sub r4, r5, r6, lsl r7
+	sub r4, r5, r6, lsr r7
+	sub r4, r5, r6, asr r7
+	sub r4, r5, r6, ror r7
+
+	teq r4, r5, lsl #4
+	teq r4, r5, lsr #4
+	teq r4, r5, asr #4
+	teq r4, r5, ror #4
+	teq r4, r5, lsl r7
+	teq r4, r5, lsr r7
+	teq r4, r5, asr r7
+	teq r4, r5, ror r7
+
+	tst r4, r5, lsl #4
+	tst r4, r5, lsr #4
+	tst r4, r5, asr #4
+	tst r4, r5, ror #4
+	tst r4, r5, lsl r7
+	tst r4, r5, lsr r7
+	tst r4, r5, asr r7
+	tst r4, r5, ror r7
+
+_dataproc_shift_none:
+	adc r4, r5, r6
+	add r4, r5, r6
+	and r4, r5, r6
+	bic r4, r5, r6
+	cmn r4, r5
+	cmp r4, r5
+	eor r4, r5, r6
+	mov r3, r4
+	mvn r3, r4
+	orr r4, r5, r6
+	rsb r4, r5, r6
+	rsc r4, r5, r6
+	sbc r4, r5, r6
+	sub r4, r5, r6
+	teq r3, r4
 	tst r3, r4
 
 // Branching
