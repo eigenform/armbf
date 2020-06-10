@@ -88,3 +88,24 @@ _multiply_test:
 	umlal r3, r4, r5, r6
 	umull r3, r4, r5, r6
 
+	smlabb r3, r4, r5, r6
+	smlabt r3, r4, r5, r6
+	smlatb r3, r4, r5, r6
+	smlatt r3, r4, r5, r6
+
+	smlalbb r3, r4, r5, r6
+	smlalbt r3, r4, r5, r6
+	smlaltb r3, r4, r5, r6
+	smlaltt r3, r4, r5, r6
+
+	smlawb r3, r4, r5, r6
+	smlawt r3, r4, r5, r6
+
+	smulbb r3, r4, r5
+	smulbt r3, r4, r5
+	smultb r3, r4, r5
+	smultt r3, r4, r5
+
+
+
+

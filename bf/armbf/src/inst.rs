@@ -31,10 +31,10 @@ pub enum ArmInst {
     QdSub(SatBf),
 
     // Control instructions (signed multiply)
-    Smla,
-    Smlaw, 
-    Smulw, 
-    Smlal, 
+    Smla(SmulBf),
+    Smlaw(SmulBf), 
+    Smulw(SmulBf), 
+    Smlal(SmulBf), 
     Smul(SmulBf),
 
     // Control instructions (other)
@@ -43,10 +43,6 @@ pub enum ArmInst {
 
     // Misc. load/store instructions (swap byte)
     Swp(SwpBf), 
-
-    // Misc. load/store instructions (load halfword)
-    LdrhImm, 
-    LdrhReg,
 
     // Misc. load/store instructions (load/store halfword/doubleword)
     StrdLdrdImm(StrdLdrdImmBf), 
@@ -61,8 +57,8 @@ pub enum ArmInst {
     LdrsbReg(LdrsbRegBf),
 
     // Multiply instructions
-    MulMla, 
-    UmulUmla,
+    MulMla(MulBf), 
+    UmulUmla(MulBf),
 
     // Data-processing instructions
     DpShiftReg(DpShiftRegBf), 

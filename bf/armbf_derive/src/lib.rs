@@ -225,10 +225,8 @@ fn impl_sr_common(ast: &syn::DeriveInput) -> quote::Tokens {
         impl SrBits for #name {
             #[inline(always)]
             fn field_mask(&self) -> u32 { get_field_mask!(self.0) }
-
             #[inline(always)]
             fn r(&self) -> bool { get_r!(self.0) }
-
         }
     }
 }

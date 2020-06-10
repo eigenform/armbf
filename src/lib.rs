@@ -35,15 +35,15 @@ pub fn arm_decode_control(x: u32) -> ArmInst {
         0b0111 => ArmInst::Bkpt(BkptBf(x)),
         0b1000 | 0b1010 | 0b1100 | 0b1110 => {
             match get_signed_mul_op!(x) {
-                0b00 => ArmInst::Smla,
+                0b00 => ArmInst::Smla(SmulBf(x)),
                 0b01 => {
                     if bit!(x, 5) { 
-                        return ArmInst::Smulw;
+                        return ArmInst::Smulw(SmulBf(x));
                     } else { 
-                        return ArmInst::Smlaw;
+                        return ArmInst::Smlaw(SmulBf(x));
                     }
                 }
-                0b10 => ArmInst::Smlal,
+                0b10 => ArmInst::Smlal(SmulBf(x)),
                 0b11 => ArmInst::Smul(SmulBf(x)),
                 _ => unreachable!(),
             }
@@ -92,8 +92,8 @@ pub fn decode(x: u32) -> ArmInst {
         0b000 => { 
 
             if is_valid_multiply_instr!(x) {
-                if bit!(x, 23) { return ArmInst::MulMla; } 
-                else { return ArmInst::UmulUmla; }
+                if bit!(x, 23) { return ArmInst::MulMla(MulBf(x)); } 
+                else { return ArmInst::UmulUmla(MulBf(x)); }
             }
             if is_valid_lsmisc_instr!(x) { return arm_decode_lsmisc(x); }
             if is_valid_control_instr!(x) { return arm_decode_control(x); }

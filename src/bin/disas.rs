@@ -132,9 +132,6 @@ pub mod dis {
             dest,
         )
     }
-
-
-
 }
 
 fn get_disas_str(op: &ArmInst, offset: u32) -> String {
@@ -152,6 +149,7 @@ fn get_disas_str(op: &ArmInst, offset: u32) -> String {
         _ => format!("{:?}",op).to_string(),
     }
 }
+
 
 
 // Read some code into a Vec<u32>, then just iterate and decode/interpret
