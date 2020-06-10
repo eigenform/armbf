@@ -151,6 +151,11 @@ macro_rules! get_rm { ($val:expr) => {
 // Immediate bitfields
 //
 
+#[macro_export]
+macro_rules! get_imm4 { ($val:expr) => {
+    ($val & 0b0000_0000_0000_0000_0000_0000_0000_1111)
+}}
+
 /// Get the imm8 field (bits 7-0).
 #[macro_export]
 macro_rules! get_imm8 { ($val:expr) => {
@@ -163,11 +168,27 @@ macro_rules! get_imm12 { ($val:expr) => {
     ($val & 0b0000_0000_0000_0000_0000_1111_1111_1111)
 }}
 
+#[macro_export]
+macro_rules! get_imm12_hi { ($val:expr) => {
+    ($val & 0b0000_0000_0000_1111_1111_1111_0000_0000) >> 8
+}}
+
 /// Get the imm24 field (bits 23-0).
 #[macro_export]
 macro_rules! get_imm24 { ($val:expr) => {
     ($val & 0b0000_0000_1111_1111_1111_1111_1111_1111)
 }}
+
+#[macro_export]
+macro_rules! get_off_hi { ($val:expr) => {
+    ($val & 0b0000_0000_0000_0000_0000_1111_0000_0000)
+}}
+
+#[macro_export]
+macro_rules! get_off_lo { ($val:expr) => {
+    ($val & 0b0000_0000_0000_0000_0000_0000_0000_1111)
+}}
+
 
 
 // ----------------------------------------------------------------------------
@@ -313,6 +334,27 @@ macro_rules! get_rd_hi { ($val:expr) => { get_rn!($val) }}
 
 #[macro_export]
 macro_rules! get_rd_lo { ($val:expr) => { get_rd!($val) }}
+
+#[macro_export]
+macro_rules! get_x { ($val:expr) => { 
+    ($val & 0b0000_0000_0000_0000_0000_0000_0010_0000) != 0
+}}
+
+#[macro_export]
+macro_rules! get_y { ($val:expr) => { 
+    ($val & 0b0000_0000_0000_0000_0000_0000_0100_0000) != 0
+}}
+
+#[macro_export]
+macro_rules! get_un { ($val:expr) => { 
+    ($val & 0b0000_0000_0100_0000_0000_0000_0000_0000) != 0
+}}
+
+#[macro_export]
+macro_rules! get_a { ($val:expr) => { 
+    ($val & 0b0000_0000_0010_0000_0000_0000_0000_0000) != 0
+}}
+
 
 
 // ----------------------------------------------------------------------------

@@ -99,11 +99,22 @@ fn impl_imm_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl ImmBits for #name {
             #[inline(always)]
+            fn imm4(&self) -> u32 { get_imm4!(self.0) }
+            #[inline(always)]
             fn imm8(&self) -> u32 { get_imm8!(self.0) }
             #[inline(always)]
             fn imm12(&self) -> u32 { get_imm12!(self.0) }
+
+            #[inline(always)]
+            fn imm12_hi(&self) -> u32 { get_imm12_hi!(self.0) }
+
             #[inline(always)]
             fn imm24(&self) -> u32 { get_imm24!(self.0) }
+
+           #[inline(always)]
+            fn off_hi(&self) -> u32 { get_off_hi!(self.0) }
+            fn off_lo(&self) -> u32 { get_off_lo!(self.0) }
+
 
         }
     }
@@ -231,9 +242,13 @@ fn impl_multiply_common(ast: &syn::DeriveInput) -> quote::Tokens {
             #[inline(always)]
             fn rd_lo(&self) -> u32 { get_rd_lo!(self.0) }
             #[inline(always)]
-            fn a(&self) -> u32 { get_a!(self.0) }
+            fn a(&self) -> bool { get_a!(self.0) }
             #[inline(always)]
-            fn un(&self) -> u32 { get_un!(self.0) }
+            fn un(&self) -> bool { get_un!(self.0) }
+            #[inline(always)]
+            fn x(&self) -> bool { get_x!(self.0) }
+            #[inline(always)]
+            fn y(&self) -> bool { get_y!(self.0) }
         }
     }
 }

@@ -5,7 +5,7 @@ use std::fmt;
 /// Condition codes.
 #[derive(Debug)]
 pub enum Cond {
-    None, Eq, Ne, Cs, Cc, Mi, Pl, Vs, Vc, Hi, Ls, Ge, Lt, Gt, Le, Al,
+    Eq, Ne, Cs, Cc, Mi, Pl, Vs, Vc, Hi, Ls, Ge, Lt, Gt, Le, Al, Un
 }
 impl Cond {
     pub fn from_u32(x: u32) -> Self {
@@ -25,6 +25,7 @@ impl Cond {
             0b1100 => Cond::Gt,
             0b1101 => Cond::Le,
             0b1110 => Cond::Al,
+            0b1111 => Cond::Un,
             _ => unreachable!(),
         }
     }
@@ -43,9 +44,11 @@ impl fmt::Display for Cond {
             Cond::Hi => write!(f, "hi"),
             Cond::Ls => write!(f, "ls"),
             Cond::Ge => write!(f, "ge"),
+            Cond::Lt => write!(f, "lt"),
             Cond::Gt => write!(f, "gt"),
             Cond::Le => write!(f, "le"),
             Cond::Al => write!(f, ""),
+            Cond::Un => write!(f, ""),
             _ => unreachable!(),
         }
     }

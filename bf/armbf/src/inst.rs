@@ -20,45 +20,45 @@ pub enum ArmInst {
 
     // Control instructions (branch and exchange)
     Bx(BxBf), 
-    Blx, 
+    BlxReg(BranchBf), 
+    BlxImm(BranchBf),
     Bxj, 
 
     // Control instructions (saturated add/sub)
-    Qadd, 
-    Qsub, 
-    QdAdd, 
-    QdSub,
+    Qadd(SatBf), 
+    Qsub(SatBf), 
+    QdAdd(SatBf), 
+    QdSub(SatBf),
 
     // Control instructions (signed multiply)
     Smla,
     Smlaw, 
     Smulw, 
     Smlal, 
-    Smul,
+    Smul(SmulBf),
 
     // Control instructions (other)
-    Clz,
-    Bkpt,
+    Clz(ClzBf),
+    Bkpt(BkptBf),
 
     // Misc. load/store instructions (swap byte)
-    Swp, 
-    Swpb,
+    Swp(SwpBf), 
 
     // Misc. load/store instructions (load halfword)
     LdrhImm, 
     LdrhReg,
 
     // Misc. load/store instructions (load/store halfword/doubleword)
-    StrdLdrdImm, 
-    StrdLdrdReg,
-    StrhLdrhReg, 
-    StrhLdrhImm,
+    StrdLdrdImm(StrdLdrdImmBf), 
+    StrdLdrdReg(StrdLdrdRegBf),
+    StrhLdrhReg(StrhLdrhRegBf), 
+    StrhLdrhImm(StrhLdrhImmBf),
 
     // Misc. load/store instructions (load signed byte/halfword)
-    LdrshImm, 
-    LdrshReg,
-    LdrsbImm, 
-    LdrsbReg,
+    LdrshImm(LdrshImmBf), 
+    LdrshReg(LdrshRegBf),
+    LdrsbImm(LdrsbImmBf), 
+    LdrsbReg(LdrsbRegBf),
 
     // Multiply instructions
     MulMla, 
@@ -75,7 +75,7 @@ pub enum ArmInst {
     LsMulti(LsMultiBf),
 
     // Branching instructions
-    Branch,
+    Branch(BranchBf),
 
     // Coprocessor instructions
     CoprocLs, 
@@ -83,7 +83,7 @@ pub enum ArmInst {
     CoprocRt, 
 
     // Software interrupts
-    Swi,
+    Swi(SwiBf),
 }
 impl Default for ArmInst { fn default() -> Self { ArmInst::None } }
 

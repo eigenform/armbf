@@ -23,6 +23,16 @@ pub trait LsMultiBits {
     fn reglist(&self) -> u32;
 }
 
+/// Accessors common to multiply instructions.
+pub trait MultiplyBits {
+    fn rd_hi(&self) -> u32;
+    fn rd_lo(&self) -> u32;
+    fn a(&self) -> bool;
+    fn un(&self) -> bool;
+    fn x(&self) -> bool;
+    fn y(&self) -> bool;
+}
+
 /// Accessors common to load/store instructions.
 pub trait LsBits {
     fn p(&self) -> bool;
@@ -34,9 +44,13 @@ pub trait LsBits {
 
 /// Accessors for immediates.
 pub trait ImmBits {
+    fn imm4(&self) -> u32;
     fn imm8(&self) -> u32;
     fn imm12(&self) -> u32;
+    fn imm12_hi(&self) -> u32;
     fn imm24(&self) -> u32;
+    fn off_hi(&self) -> u32;
+    fn off_lo(&self) -> u32;
 }
 
 /// Accessors for instructions that modify the status registers.
