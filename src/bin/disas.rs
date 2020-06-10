@@ -190,29 +190,64 @@ pub mod dis {
         let shift_type = ShifterType::from_u32(op.shift());
 
         match opcd {
-            Opcode::Cmn => { format!("{}{}\t {}, {}", opcd, cond, rn, 
-                format!("{}, {} #{}", rm, shift_type, shift_imm))
+            Opcode::Cmn => { 
+                if shift_imm == 0 {
+                    return format!("{}{}\t {}, {}", opcd, cond, rn, rm);
+                }
+                format!("{}{}\t {}, {}", opcd, cond, rn, 
+                    format!("{}, {} #{}", rm, shift_type, shift_imm)
+                )
             },
-            Opcode::Cmp => { format!("{}{}\t {}, {}", opcd, cond, rn, 
-                format!("{}, {} #{}", rm, shift_type, shift_imm))
+            Opcode::Cmp => { 
+                if shift_imm == 0 {
+                    return format!("{}{}\t {}, {}", opcd, cond, rn, rm);
+                }
+                format!("{}{}\t {}, {}", opcd, cond, rn, 
+                    format!("{}, {} #{}", rm, shift_type, shift_imm)
+                )
             },
 
-            Opcode::Mov => { format!("{}{}\t {}, {}, #{}", 
-                shift_type, cond, rd, rm, shift_imm)
+            Opcode::Mov => { 
+                if shift_imm == 0 {
+                    return format!("{}{}\t {}, {}", opcd, cond, rd, rm);
+                }
+                format!("{}{}\t {}, {}, #{}", shift_type, cond, rd, 
+                    rm, shift_imm
+                )
             },
 
-            Opcode::Mvn => { format!("{}{}\t {}, {}, {} #{}", 
-                opcd, cond, rd, rm, shift_type, shift_imm)
+            Opcode::Mvn => { 
+                if shift_imm ==0 {
+                    return format!("{}{}\t {}, {}", opcd, cond, rd, rm);
+                }
+                format!("{}{}\t {}, {}, {} #{}", opcd, cond, rd, 
+                    rm, shift_type, shift_imm
+                )
             },
 
-            Opcode::Teq => { format!("{}{}\t {}, {}", opcd, cond, rn, 
-                format!("{}, {} #{}", rm, shift_type, shift_imm))
+            Opcode::Teq => { 
+                if shift_imm == 0 {
+                    return format!("{}{}\t {}, {}", opcd, cond, rn, rm);
+                }
+                format!("{}{}\t {}, {}", opcd, cond, rn, 
+                    format!("{}, {} #{}", rm, shift_type, shift_imm)
+                )
             },
-            Opcode::Tst => { format!("{}{}\t {}, {}", opcd, cond, rn, 
-                format!("{}, {} #{}", rm, shift_type, shift_imm))
+            Opcode::Tst => { 
+                if shift_imm == 0 {
+                    return format!("{}{}\t {}, {}", opcd, cond, rn, rm);
+                }
+                format!("{}{}\t {}, {}", opcd, cond, rn, 
+                    format!("{}, {} #{}", rm, shift_type, shift_imm)
+                )
             },
-            _ => { format!("{}{}\t {}, {}, {} {} #{}", opcd, cond, rd, rn, 
-                rm, shift_type, shift_imm)
+            _ => { 
+                if shift_imm == 0 {
+                    return format!("{}{}\t {}, {}, {}", opcd, cond, rd, rn, rm);
+                }
+                format!("{}{}\t {}, {}, {} {} #{}", opcd, cond, rd, rn, 
+                    rm, shift_type, shift_imm
+                )
             },
         }
     }
