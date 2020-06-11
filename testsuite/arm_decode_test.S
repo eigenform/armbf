@@ -1,196 +1,71 @@
+// arm_decode_test.S
 // Just an exhaustive list of all the instructions we support.
 
-// Data-processing
-_dataproc_imm:
-	adc r4, r5, #4
-	add r4, r5, #4
-	and r4, r5, #4
-	bic r4, r5, #4
-	cmn r4, #4
-	cmp r4, #4
-	eor r4, r5, #4
-	mov r3, #0xff
-	mvn r3, #0xff
-	orr r4, r5, #4
-	rsb r4, r5, #4
-	rsc r4, r5, #4
-	sbc r4, r5, #4
-	sub r4, r5, #4
-	teq r3, #0xff
-	tst r3, #0xff
+.include "macro.S"
 
-_dataproc_shift:
-	adc r4, r5, r6, lsl #4
-	adc r4, r5, r6, lsr #4
-	adc r4, r5, r6, asr #4
-	adc r4, r5, r6, ror #4
-	adc r4, r5, r6, lsl r7
-	adc r4, r5, r6, lsr r7
-	adc r4, r5, r6, asr r7
-	adc r4, r5, r6, ror r7
+_DpRotImm:
+	DpRotImm_1 r4, 0x80000000
+	DpRotImm_1 r4, 0x100
+	DpRotImm_1 r4, 0
+	DpRotImm_2 r4, r5, 0x80000000
+	DpRotImm_2 r4, r5, 0x100
+	DpRotImm_2 r4, r5, 0
 
-	add r4, r5, r6, lsl #4
-	add r4, r5, r6, lsr #4
-	add r4, r5, r6, asr #4
-	add r4, r5, r6, ror #4
-	add r4, r5, r6, lsl r7
-	add r4, r5, r6, lsr r7
-	add r4, r5, r6, asr r7
-	add r4, r5, r6, ror r7
+_DpShiftImm:
+	DpShiftImm_1 r3, r4, lsl, 4
+	DpShiftImm_1 r3, r4, lsr, 4
+	DpShiftImm_1 r3, r4, asr, 4
+	DpShiftImm_1 r3, r4, ror, 4
+	DpShiftImm_2 r3, r4, r5, lsl, 4
+	DpShiftImm_2 r3, r4, r5, lsr, 4
+	DpShiftImm_2 r3, r4, r5, asr, 4
+	DpShiftImm_2 r3, r4, r5, ror, 4
 
-	and r4, r5, r6, lsl #4
-	and r4, r5, r6, lsr #4
-	and r4, r5, r6, asr #4
-	and r4, r5, r6, ror #4
-	and r4, r5, r6, lsl r7
-	and r4, r5, r6, lsr r7
-	and r4, r5, r6, asr r7
-	and r4, r5, r6, ror r7
+_DpShiftReg:
+	DpShiftReg_1 r3, r4, lsl, r5
+	DpShiftReg_1 r3, r4, lsr, r5
+	DpShiftReg_1 r3, r4, asr, r5
+	DpShiftReg_1 r3, r4, ror, r5
+	DpShiftReg_2 r3, r4, r5, lsl, r6
+	DpShiftReg_2 r3, r4, r5, lsr, r6
+	DpShiftReg_2 r3, r4, r5, asr, r6
+	DpShiftReg_2 r3, r4, r5, ror, r6
 
-	bic r4, r5, r6, lsl #4
-	bic r4, r5, r6, lsr #4
-	bic r4, r5, r6, asr #4
-	bic r4, r5, r6, ror #4
-	bic r4, r5, r6, lsl r7
-	bic r4, r5, r6, lsr r7
-	bic r4, r5, r6, asr r7
-	bic r4, r5, r6, ror r7
+_StatusRegisters:
+	MrsReg r3
+	MsrImm 0x80000000
+	MsrImm 0x100
+	MsrImm 0
+	MsrReg r3
 
-	cmn r4, r5, lsl #4
-	cmn r4, r5, lsr #4
-	cmn r4, r5, asr #4
-	cmn r4, r5, ror #4
-	cmn r4, r5, lsl r7
-	cmn r4, r5, lsr r7
-	cmn r4, r5, asr r7
-	cmn r4, r5, ror r7
+_Branch_Label:
+_Branch:
+	BranchImm _Branch_Label
+	BranchReg r0
+	BranchReg r1
+	BranchReg r2
+	BranchReg r3
+	BranchReg r4
+	BranchReg r5
+	BranchReg r6
+	BranchReg r7
+	BranchReg r8
+	BranchReg r9
+	BranchReg r10
+	BranchReg r11
+	BranchReg r12
+	BranchReg r13
+	BranchReg r14
 
-	cmp r4, r5, lsl #4
-	cmp r4, r5, lsr #4
-	cmp r4, r5, asr #4
-	cmp r4, r5, ror #4
-	cmp r4, r5, lsl r7
-	cmp r4, r5, lsr r7
-	cmp r4, r5, asr r7
-	cmp r4, r5, ror r7
+_LsImm:
+	LsImm r3, r4, 0xfff
+	LsImm r3, r4, -0xfff
+	LsImm r3, r4, 0x100
+	LsImm r3, r4, 0
 
-	eor r4, r5, r6, lsl #4
-	eor r4, r5, r6, lsr #4
-	eor r4, r5, r6, asr #4
-	eor r4, r5, r6, ror #4
-	eor r4, r5, r6, lsl r7
-	eor r4, r5, r6, lsr r7
-	eor r4, r5, r6, asr r7
-	eor r4, r5, r6, ror r7
+_LsShift:
+	LsShift r3, r4, r5
 
-	mov r4, r5, lsl #4
-	mov r4, r5, lsr #4
-	mov r4, r5, asr #4
-	mov r4, r5, ror #4
-	mov r4, r5, lsl r7
-	mov r4, r5, lsr r7
-	mov r4, r5, asr r7
-	mov r4, r5, ror r7
-
-	mvn r4, r5, lsl #4
-	mvn r4, r5, lsr #4
-	mvn r4, r5, asr #4
-	mvn r4, r5, ror #4
-	mvn r4, r5, lsl r7
-	mvn r4, r5, lsr r7
-	mvn r4, r5, asr r7
-	mvn r4, r5, ror r7
-
-	orr r4, r5, r6, lsl #4
-	orr r4, r5, r6, lsr #4
-	orr r4, r5, r6, asr #4
-	orr r4, r5, r6, ror #4
-	orr r4, r5, r6, lsl r7
-	orr r4, r5, r6, lsr r7
-	orr r4, r5, r6, asr r7
-	orr r4, r5, r6, ror r7
-
-	rsb r4, r5, r6, lsl #4
-	rsb r4, r5, r6, lsr #4
-	rsb r4, r5, r6, asr #4
-	rsb r4, r5, r6, ror #4
-	rsb r4, r5, r6, lsl r7
-	rsb r4, r5, r6, lsr r7
-	rsb r4, r5, r6, asr r7
-	rsb r4, r5, r6, ror r7
-
-	rsc r4, r5, r6, lsl #4
-	rsc r4, r5, r6, lsr #4
-	rsc r4, r5, r6, asr #4
-	rsc r4, r5, r6, ror #4
-	rsc r4, r5, r6, lsl r7
-	rsc r4, r5, r6, lsr r7
-	rsc r4, r5, r6, asr r7
-	rsc r4, r5, r6, ror r7
-
-	sbc r4, r5, r6, lsl #4
-	sbc r4, r5, r6, lsr #4
-	sbc r4, r5, r6, asr #4
-	sbc r4, r5, r6, ror #4
-	sbc r4, r5, r6, lsl r7
-	sbc r4, r5, r6, lsr r7
-	sbc r4, r5, r6, asr r7
-	sbc r4, r5, r6, ror r7
-
-	sub r4, r5, r6, lsl #4
-	sub r4, r5, r6, lsr #4
-	sub r4, r5, r6, asr #4
-	sub r4, r5, r6, ror #4
-	sub r4, r5, r6, lsl r7
-	sub r4, r5, r6, lsr r7
-	sub r4, r5, r6, asr r7
-	sub r4, r5, r6, ror r7
-
-	teq r4, r5, lsl #4
-	teq r4, r5, lsr #4
-	teq r4, r5, asr #4
-	teq r4, r5, ror #4
-	teq r4, r5, lsl r7
-	teq r4, r5, lsr r7
-	teq r4, r5, asr r7
-	teq r4, r5, ror r7
-
-	tst r4, r5, lsl #4
-	tst r4, r5, lsr #4
-	tst r4, r5, asr #4
-	tst r4, r5, ror #4
-	tst r4, r5, lsl r7
-	tst r4, r5, lsr r7
-	tst r4, r5, asr r7
-	tst r4, r5, ror r7
-
-_dataproc_shift_none:
-	adc r4, r5, r6
-	add r4, r5, r6
-	and r4, r5, r6
-	bic r4, r5, r6
-	cmn r4, r5
-	cmp r4, r5
-	eor r4, r5, r6
-	mov r3, r4
-	mvn r3, r4
-	orr r4, r5, r6
-	rsb r4, r5, r6
-	rsc r4, r5, r6
-	sbc r4, r5, r6
-	sub r4, r5, r6
-	teq r3, r4
-	tst r3, r4
-
-// Branching
-_branch:
-	b _branch
-	bl _branch
-	bx r3
-	blx r3
-	blx _branch
-
-// Load/store
 _loadstore:
 	ldr r3, =_loadstore
 	ldr r3, [r4, r5]
@@ -221,29 +96,21 @@ _loadstore_sbyte:
 	ldrsb r3, =_loadstore
 	ldrsb r3, [r4, r5]
 
-_swap:
-	swp r3, r4, [r5]
-	swpb r3, r4, [r5]
 
-//_loadstore_multi_push:
-//	push { r0-r9, sl, fp, ip, lr, pc }
-//	stm sp!, { r0-r9, sl, fp, ip, lr, pc }
-//
-//_loadstore_multi_pop:
-//	pop  { r0-r9, sl, fp, ip, lr, pc }
-//	ldm sp!, { r0-r9, sl, fp, ip, lr, pc }
-
+// Load/store multiple
 _loadstore_multi:
 	stm r0, {r1-r9}
 	ldm r0, {r1-r9}
 	stm r0!, {r1-r9}
 	ldm r0!, {r1-r9}
 
-// Control
+// Misc/Control
 _misc_control:
 	bkpt #0xcafe
 	swi #0xcafe
 	clz r4, r5
+	swp r3, r4, [r5]
+	swpb r3, r4, [r5]
 
 // Coprocessor 
 _coproc:
@@ -258,22 +125,7 @@ _sat_add_sub:
 	qsub r3, r4, r5
 	qdsub r3, r4, r5
 
-// Status register
-_status_reg:
-	mrs r3, cpsr
-	mrs r3, spsr
-	msr cpsr_c, r0
-	msr cpsr_x, r0
-	msr cpsr_f, r0
-	msr cpsr_s, r0
-	msr cpsr_fsxc, #0xd0
-	msr cpsr_fc, #0xd0
-	msr cpsr_fx, #0xd0
-	msr cpsr_xc, #0xd0
-	msr cpsr_sc, #0xd0
-
-
-// Multiplies
+// Multiplies and extended signed multiplies
 _mul:
 	mul r3, r4, r5
 _mla:
@@ -283,30 +135,22 @@ _umull:
 	umlal r3, r4, r5, r6
 	smlal r3, r4, r5, r6
 	smull r3, r4, r5, r6
-
-
-
-// Signed multiplies (extended)
 _smla_xy:
 	smlabb r3, r4, r5, r6
 	smlabt r3, r4, r5, r6
 	smlatb r3, r4, r5, r6
 	smlatt r3, r4, r5, r6
-
 _smlal_xy:
 	smlalbb r3, r4, r5, r6
 	smlalbt r3, r4, r5, r6
 	smlaltb r3, r4, r5, r6
 	smlaltt r3, r4, r5, r6
-
 _smlaw_y:
 	smlawb r3, r4, r5, r6
 	smlawt r3, r4, r5, r6
-
 _smulw_y:
 	smulwb r3, r4, r5
 	smulwt r3, r4, r5
-
 _smul_xy:
 	smulbb r3, r4, r5
 	smulbt r3, r4, r5
