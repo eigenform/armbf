@@ -14,12 +14,19 @@ use armbf_prim::*;
 pub fn arm_decode_control(x: u32) -> ArmInst {
     match get_control_opcd!(x) {
         0b0000 => {
-            if bit!(x, 21) { return ArmInst::MrsReg(StatusBf(x)); } 
-            else { return ArmInst::Msr(StatusBf(x)); }
+            if bit!(x, 21) { 
+                return ArmInst::MsrReg(StatusBf(x)); 
+            } 
+            else { 
+                return ArmInst::Mrs(StatusBf(x)); 
+            }
         }
         0b0001 => {
-            if bit!(x, 22) { return ArmInst::Clz(ClzBf(x)); } 
-            else { return ArmInst::Bx(BxBf(x)); }
+            if bit!(x, 22) { 
+                return ArmInst::Clz(ClzBf(x)); 
+            } else { 
+                return ArmInst::Bx(BxBf(x)); 
+            }
         },
         0b0010 => ArmInst::Bxj,
         0b0011 => ArmInst::BlxReg(BranchBf(x)),
@@ -58,8 +65,8 @@ pub fn arm_decode_lsmisc(x: u32) -> ArmInst {
     match get_decode_bits_lo!(x) {
         0b1001 => ArmInst::Swp(SwpBf(x)),
         0b1011 => {
-            if bit!(x, 22) { return ArmInst::StrhLdrhImm(StrhLdrhImmBf(x)); } 
-            else { return ArmInst::StrhLdrhReg(StrhLdrhRegBf(x)); }
+            if bit!(x, 22) { return ArmInst::LsHalfImm(LsHalfImmBf(x)); } 
+            else { return ArmInst::LsHalfReg(LsHalfRegBf(x)); }
         },
         0b1101 | 0b1110 | 0b1111 => {
             let tbl = (bit!(x, 20), bit!(x, 22), bit!(x, 5));
@@ -68,8 +75,8 @@ pub fn arm_decode_lsmisc(x: u32) -> ArmInst {
                 (true, false, true) => ArmInst::LdrshReg(LdrshRegBf(x)),
                 (true, true, false) => ArmInst::LdrsbImm(LdrsbImmBf(x)),
                 (true, true, true) => ArmInst::LdrshImm(LdrshImmBf(x)),
-                (false, false, _) => ArmInst::StrdLdrdReg(StrdLdrdRegBf(x)),
-                (false, true, _) => ArmInst::StrdLdrdImm(StrdLdrdImmBf(x)),
+                (false, false, _) => ArmInst::LsDoubleReg(LsDoubleRegBf(x)),
+                (false, true, _) => ArmInst::LsDoubleImm(LsDoubleImmBf(x)),
             }
         },
         _ => unreachable!("Instruction {:08x} {:032b}", x, x),
@@ -114,10 +121,10 @@ pub fn decode(x: u32) -> ArmInst {
         },
 
         // Data processing (rotate immediate).
-        // There is only one exception for a single control instruction (mrs).
+        // There is only one exception for a control instruction (msr).
 
         0b001 => {
-            if is_valid_control_instr!(x) { return ArmInst::MrsImm(StatusBf(x)); }
+            if is_valid_control_instr!(x) { return ArmInst::MsrImm(StatusBf(x)); }
             ArmInst::DpRotImm(DpRotImmBf(x))
         },
 
@@ -156,7 +163,14 @@ pub fn decode(x: u32) -> ArmInst {
                 return ArmInst::None;
             }
 
-            if bit!(x, 4) { return ArmInst::CoprocRt(CoprocBf(x)); }
+            if bit!(x, 4) { 
+                if bit!(x, 20) { 
+                    return ArmInst::Mrc(CoprocBf(x));
+                } else {
+                    return ArmInst::Mcr(CoprocBf(x));
+                }
+            }
+
             ArmInst::CoprocDp(CoprocBf(x))
         },
         _ => unreachable!(),

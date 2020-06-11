@@ -225,9 +225,19 @@ _swap:
 	swp r3, r4, [r5]
 	swpb r3, r4, [r5]
 
+//_loadstore_multi_push:
+//	push { r0-r9, sl, fp, ip, lr, pc }
+//	stm sp!, { r0-r9, sl, fp, ip, lr, pc }
+//
+//_loadstore_multi_pop:
+//	pop  { r0-r9, sl, fp, ip, lr, pc }
+//	ldm sp!, { r0-r9, sl, fp, ip, lr, pc }
+
 _loadstore_multi:
-	push { r3, r4, r5, r6, r7, r8, r9, sl, fp, ip, lr, pc }
-	ldm sp, {r4, r5, r6, r7, r8, r9, sl, fp, sp, lr }
+	stm r0, {r1-r9}
+	ldm r0, {r1-r9}
+	stm r0!, {r1-r9}
+	ldm r0!, {r1-r9}
 
 // Control
 _control_test:

@@ -29,10 +29,10 @@ declare_instr_fields!(LsImmBf,          LsBits, RegBits, ImmBits);
 declare_instr_fields!(LsShiftBf,        LsBits, RegBits, ShiftBits);
 declare_instr_fields!(LsMultiBf,        LsBits, RegBits, LsMultiBits);
 
-declare_instr_fields!(StrhLdrhImmBf,    LsBits, RegBits, ImmBits);
-declare_instr_fields!(StrhLdrhRegBf,    LsBits, RegBits, ImmBits);
-declare_instr_fields!(StrdLdrdRegBf,    LsBits, RegBits, ImmBits);
-declare_instr_fields!(StrdLdrdImmBf,    LsBits, RegBits, ImmBits);
+declare_instr_fields!(LsHalfImmBf,    LsBits, RegBits, ImmBits);
+declare_instr_fields!(LsHalfRegBf,    LsBits, RegBits, ImmBits);
+declare_instr_fields!(LsDoubleRegBf,    LsBits, RegBits, ImmBits);
+declare_instr_fields!(LsDoubleImmBf,    LsBits, RegBits, ImmBits);
 declare_instr_fields!(LdrsbImmBf,       LsBits, RegBits, ImmBits);
 declare_instr_fields!(LdrsbRegBf,       LsBits, RegBits, ImmBits);
 declare_instr_fields!(LdrshImmBf,       LsBits, RegBits, ImmBits);

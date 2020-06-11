@@ -14,9 +14,9 @@ pub enum ArmInst {
     None,
 
     // Control instructions (status register)
-    MrsReg(StatusBf), 
-    MrsImm(StatusBf), 
-    Msr(StatusBf),
+    MsrReg(StatusBf), 
+    MsrImm(StatusBf), 
+    Mrs(StatusBf),
 
     // Control instructions (branch and exchange)
     Bx(BxBf), 
@@ -30,7 +30,6 @@ pub enum ArmInst {
     QdAdd(SatBf), 
     QdSub(SatBf),
 
-
     // Control instructions (other)
     Clz(ClzBf),
     Bkpt(BkptBf),
@@ -39,10 +38,11 @@ pub enum ArmInst {
     Swp(SwpBf), 
 
     // Misc. load/store instructions (load/store halfword/doubleword)
-    StrdLdrdImm(StrdLdrdImmBf), 
-    StrdLdrdReg(StrdLdrdRegBf),
-    StrhLdrhReg(StrhLdrhRegBf), 
-    StrhLdrhImm(StrhLdrhImmBf),
+    LsDoubleImm(LsDoubleImmBf), 
+    LsDoubleReg(LsDoubleRegBf),
+
+    LsHalfReg(LsHalfRegBf), 
+    LsHalfImm(LsHalfImmBf),
 
     // Misc. load/store instructions (load signed byte/halfword)
     LdrshImm(LdrshImmBf), 
@@ -60,16 +60,11 @@ pub enum ArmInst {
     // Multiply instructions
     Mul(MulBf),
     Mla(MulBf),
-    Umull(MulBf),
     Umla(MulBf),
-    Umlal(MulBf),
-
-    // ARMv6
-    //Umaal(MulBf),
-
-    Smlal(MulBf), 
+    Umull(MulBf),
     Smull(MulBf),
-
+    Umlal(MulBf),
+    Smlal(MulBf), 
 
     // Data-processing instructions
     DpShiftReg(DpShiftRegBf), 
@@ -87,12 +82,13 @@ pub enum ArmInst {
     // Coprocessor instructions
     CoprocLs(CoprocBf), 
     CoprocDp(CoprocBf), 
-    CoprocRt(CoprocBf), 
+    Mrc(CoprocBf),
+    Mcr(CoprocBf),
 
     // Software interrupts
     Swi(SwiBf),
 }
-impl Default for ArmInst { fn default() -> Self { ArmInst::None } }
-
-
+impl Default for ArmInst { 
+    fn default() -> Self { ArmInst::None } 
+}
 
