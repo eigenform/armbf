@@ -150,7 +150,7 @@
 .endm
 
 
-.macro LsShift rd, rn, rm, shift, shift_imm
+.macro LsShift rd, rn, rm
 	ldr \rd, [\rn, \rm]
 	ldrb \rd, [\rn, \rm]
 	str \rd, [\rn, \rm]
@@ -165,6 +165,57 @@
 	ldrb \rd, [\rn], \rm
 	str \rd, [\rn], \rm
 	strb \rd, [\rn], \rm
+.endm
+
+.macro LsShiftScaled rd, rn, rm, shift, shift_imm
+	ldr \rd, [\rn, \rm, \shift #\shift_imm]
+	ldrb \rd, [\rn, \rm, \shift #\shift_imm]
+	str \rd, [\rn, \rm, \shift #\shift_imm]
+	strb \rd, [\rn, \rm, \shift #\shift_imm]
+
+	ldr \rd, [\rn, \rm, \shift #\shift_imm]!
+	ldrb \rd, [\rn, \rm, \shift #\shift_imm]!
+	str \rd, [\rn, \rm, \shift #\shift_imm]!
+	strb \rd, [\rn, \rm, \shift #\shift_imm]!
+
+	ldr \rd, [\rn], \rm, \shift #\shift_imm
+	ldrb \rd, [\rn], \rm, \shift #\shift_imm
+	str \rd, [\rn], \rm, \shift #\shift_imm
+	strb \rd, [\rn], \rm, \shift #\shift_imm
+.endm
+
+.macro LsMiscImm rd, rn, imm
+	ldrh \rd, [\rn, #\imm]
+	ldrd \rd, [\rn, #\imm]
+	ldrsh \rd, [\rn, #\imm]
+	ldrsb \rd, [\rn, #\imm]
+	strh \rd, [\rn, #\imm]
+	strd \rd, [\rn, #\imm]
+
+	ldrh \rd, [\rn, #\imm]!
+	ldrd \rd, [\rn, #\imm]!
+	ldrsh \rd, [\rn, #\imm]!
+	ldrsb \rd, [\rn, #\imm]!
+	strh \rd, [\rn, #\imm]!
+	strd \rd, [\rn, #\imm]!
+
+	ldrh \rd, [\rn], #\imm
+	ldrsh \rd, [\rn], #\imm
+	ldrsb \rd, [\rn], #\imm
+	ldrd \rd, [\rn], #\imm
+	strh \rd, [\rn], #\imm
+	strd \rd, [\rn], #\imm
+.endm
+
+.macro LsMiscReg rd, rn, rm
+	ldrh \rd, [\rn, \rm]
+	strh \rd, [\rn, \rm]
+
+	ldrh \rd, [\rn, \rm]!
+	strh \rd, [\rn, \rm]!
+
+	ldrh \rd, [\rn], \rm
+	strh \rd, [\rn], \rm
 .endm
 
 

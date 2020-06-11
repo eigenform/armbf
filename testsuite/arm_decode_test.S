@@ -62,70 +62,44 @@ _LsImm:
 	LsImm r3, r4, -0xfff
 	LsImm r3, r4, 0x100
 	LsImm r3, r4, 0
-
 _LsShift:
 	LsShift r3, r4, r5
+	LsShiftScaled r3, r4, r5, lsl, 4
+	LsShiftScaled r3, r4, r5, lsr, 4
+	LsShiftScaled r3, r4, r5, asr, 4
+	LsShiftScaled r3, r4, r5, ror, 4
 
-_loadstore:
-	ldr r3, =_loadstore
-	ldr r3, [r4, r5]
-	ldr r3, [r4, #2]
-	str r3, _loadstore
-	str r3, [r4, r5]
-	str r3, [r4, #2]
+_LsMiscImm:
+	LsMiscImm r4, r6, 0x80
+	LsMiscImm r4, r6, -0x80
+	LsMiscImm r4, r6, 0
+_LsMiscReg:
+	LsMiscReg r4, r5, r6
 
-_loadstore_byte:
-	ldrb r3, =_loadstore
-	strb r3, _loadstore
-
-_loadstore_half:
-	ldrh r3, =_loadstore
-	ldrh r3, [r4]
-	ldrh r3, [r4, #4]
-	ldrh r3, [r4, r5]
-	strh r3, _loadstore
-	strh r3, [r4]
-	strh r3, [r4, #2]
-	strh r3, [r4, r5]
-
-_loadstore_shalf:
-	ldrsh r3, =_loadstore
-	ldrsh r3, [r4, r5]
-
-_loadstore_sbyte:
-	ldrsb r3, =_loadstore
-	ldrsb r3, [r4, r5]
-
-
-// Load/store multiple
-_loadstore_multi:
+_LsMultiple:
 	stm r0, {r1-r9}
 	ldm r0, {r1-r9}
 	stm r0!, {r1-r9}
 	ldm r0!, {r1-r9}
 
-// Misc/Control
-_misc_control:
+_Misc:
 	bkpt #0xcafe
 	swi #0xcafe
 	clz r4, r5
 	swp r3, r4, [r5]
 	swpb r3, r4, [r5]
 
-// Coprocessor 
-_coproc:
+_Coprocessor:
 	cdp 13, 15, cr0, cr0, cr0, 0
 	mcr 15, 0, r0, cr7, cr5, 0
 	mrc 15, 0, r3, cr5, cr0, 0
 
-// Saturated add/sub
-_sat_add_sub:
+_SaturatedAddSub:
 	qadd r3, r4, r5
 	qdadd r3, r4, r5
 	qsub r3, r4, r5
 	qdsub r3, r4, r5
 
-// Multiplies and extended signed multiplies
 _mul:
 	mul r3, r4, r5
 _mla:
