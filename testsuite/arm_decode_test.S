@@ -240,16 +240,16 @@ _loadstore_multi:
 	ldm r0!, {r1-r9}
 
 // Control
-_control_test:
+_misc_control:
 	bkpt #0xcafe
-	cdp 13, 15, cr0, cr0, cr0, 0
+	swi #0xcafe
 	clz r4, r5
+
+// Coprocessor 
+_coproc:
+	cdp 13, 15, cr0, cr0, cr0, 0
 	mcr 15, 0, r0, cr7, cr5, 0
 	mrc 15, 0, r3, cr5, cr0, 0
-	mrs r3, cpsr
-	msr cpsr_c, r0
-	msr cpsr_c, #0xd0
-	swi #0xcafe
 
 // Saturated add/sub
 _sat_add_sub:
@@ -257,6 +257,21 @@ _sat_add_sub:
 	qdadd r3, r4, r5
 	qsub r3, r4, r5
 	qdsub r3, r4, r5
+
+// Status register
+_status_reg:
+	mrs r3, cpsr
+	mrs r3, spsr
+	msr cpsr_c, r0
+	msr cpsr_x, r0
+	msr cpsr_f, r0
+	msr cpsr_s, r0
+	msr cpsr_fsxc, #0xd0
+	msr cpsr_fc, #0xd0
+	msr cpsr_fx, #0xd0
+	msr cpsr_xc, #0xd0
+	msr cpsr_sc, #0xd0
+
 
 // Multiplies
 _mul:

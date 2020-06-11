@@ -65,8 +65,8 @@ fn get_disas_str(op: &ArmInst, offset: u32) -> String {
 
         // Status register 
         ArmInst::Mrs(bf)        => armfmt::mrs(bf),
-        //ArmInst::MsrImm(bf)     => armfmt::msr_imm(bf),
-        //ArmInst::MsrReg(bf)     => armfmt::msr_reg(bf),
+        ArmInst::MsrImm(bf)     => armfmt::msr_imm(bf),
+        ArmInst::MsrReg(bf)     => armfmt::msr_reg(bf),
 
         // Co-processor
         ArmInst::Mrc(bf)        => armfmt::mrc(bf),

@@ -35,6 +35,58 @@ pub fn mrs(op: &StatusBf) -> String {
     )
 }
 
+pub fn msr_imm(op: &StatusBf) -> String {
+    let sr_name = if op.r() { "SPSR" } else { "CPSR" };
+
+    let mut fields_str = std::string::String::new();
+    for idx in (0..4).rev() {
+        if (op.field_mask() & (1 << idx)) != 0 {
+            let bit = match idx {
+                0 => "c",
+                1 => "x",
+                2 => "s",
+                3 => "f",
+                _ => unreachable!(),
+            };
+            fields_str.push_str(bit);
+        }
+    }
+
+    format!("msr{}\t {}_{}, #{}",
+        Cond::from_u32(op.cond()), 
+        sr_name,
+        fields_str,
+        op.imm8(),
+    )
+}
+
+pub fn msr_reg(op: &StatusBf) -> String {
+    let sr_name = if op.r() { "SPSR" } else { "CPSR" };
+
+    let mut fields_str = std::string::String::new();
+    for idx in (0..4).rev() {
+        if (op.field_mask() & (1 << idx)) != 0 {
+            let bit = match idx {
+                0 => "c",
+                1 => "x",
+                2 => "s",
+                3 => "f",
+                _ => unreachable!(),
+            };
+            fields_str.push_str(bit);
+        }
+    }
+
+    format!("msr{}\t {}_{}, {}",
+        Cond::from_u32(op.cond()), 
+        sr_name,
+        fields_str,
+        Register::from_u32(op.rm()),
+    )
+}
+
+
+
 
 // ----------------------------------------------------------------------------
 // Saturated add/sub instructions
