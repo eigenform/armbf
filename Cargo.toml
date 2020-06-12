@@ -8,3 +8,4 @@ edition = "2018"
 armbf = { path = "bf/armbf" }
 armbf_prim = { path = "bf/armbf_prim" }
 
+rand = "0.7.3"

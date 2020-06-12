@@ -1,5 +1,7 @@
 //! Concrete (not wrapper) types representing bitfield values.
 
+#![allow(non_camel_case_types)]
+
 use std::fmt;
 
 /// Condition codes.
