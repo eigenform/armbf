@@ -27,19 +27,23 @@
 
 // ----------------------------------------------------------------------------
 // DpShiftImm
-.macro DpShiftImm_1 rn, rm, shift, imm
-	cmn \rn, \rm, \shift #\imm
-	cmp \rn, \rm, \shift #\imm
-	mov \rn, \rm, \shift #\imm
-	mvn \rn, \rm, \shift #\imm
-	teq \rn, \rm, \shift #\imm
-	tst \rn, \rm, \shift #\imm
-	cmn \rn, \rm, \shift #0
-	cmp \rn, \rm, \shift #0
-	mov \rn, \rm, \shift #0
-	mvn \rn, \rm, \shift #0
-	teq \rn, \rm, \shift #0
-	tst \rn, \rm, \shift #0
+.macro DpShiftImm_1 op, rn, rm
+	\op \rn, \rm, lsl #0
+	\op \rn, \rm, lsl #1
+	\op \rn, \rm, lsl #2
+	\op \rn, \rm, lsl #3
+	\op \rn, \rm, lsr #0
+	\op \rn, \rm, lsr #1
+	\op \rn, \rm, lsr #2
+	\op \rn, \rm, lsr #3
+	\op \rn, \rm, asr #0
+	\op \rn, \rm, asr #1
+	\op \rn, \rm, asr #2
+	\op \rn, \rm, asr #3
+	\op \rn, \rm, ror #0
+	\op \rn, \rm, ror #1
+	\op \rn, \rm, ror #2
+	\op \rn, \rm, ror #3
 .endm
 .macro DpShiftImm_2 rd, rn, rm, shift, imm
 	adc \rd, \rn, \rm, \shift #\imm
@@ -172,16 +176,19 @@
 	ldrb \rd, [\rn, \rm, \shift #\shift_imm]
 	str \rd, [\rn, \rm, \shift #\shift_imm]
 	strb \rd, [\rn, \rm, \shift #\shift_imm]
+	str \rd, [\rn, \rm, \shift #0]
 
 	ldr \rd, [\rn, \rm, \shift #\shift_imm]!
 	ldrb \rd, [\rn, \rm, \shift #\shift_imm]!
 	str \rd, [\rn, \rm, \shift #\shift_imm]!
 	strb \rd, [\rn, \rm, \shift #\shift_imm]!
+	str \rd, [\rn, \rm, \shift #0]!
 
 	ldr \rd, [\rn], \rm, \shift #\shift_imm
 	ldrb \rd, [\rn], \rm, \shift #\shift_imm
 	str \rd, [\rn], \rm, \shift #\shift_imm
 	strb \rd, [\rn], \rm, \shift #\shift_imm
+	str \rd, [\rn], \rm, \shift #0
 .endm
 
 .macro LsMiscImm rd, rn, imm

@@ -21,33 +21,25 @@ macro_rules! declare_instr_fields {
         pub struct $name(pub u32);
 }}
 
-declare_instr_fields!(DpShiftImmBf,     DpBits, RegBits, ShiftBits);
-declare_instr_fields!(DpShiftRegBf,     DpBits, RegBits, ShiftBits);
+
 declare_instr_fields!(DpRotImmBf,       DpBits, RegBits, RotBits, ImmBits);
+declare_instr_fields!(DpShiftBf,        DpBits, RegBits, ShiftBits);
+declare_instr_fields!(MulBf,            MultiplyBits, RegBits);
+declare_instr_fields!(SatBf,            RegBits);
+declare_instr_fields!(ClzBf,            RegBits);
 
 declare_instr_fields!(LsImmBf,          LsBits, RegBits, ImmBits);
 declare_instr_fields!(LsShiftBf,        LsBits, RegBits, ShiftBits);
 declare_instr_fields!(LsMultiBf,        LsBits, RegBits, LsMultiBits);
-
-declare_instr_fields!(LsHalfImmBf,    LsBits, RegBits, ImmBits);
-declare_instr_fields!(LsHalfRegBf,    LsBits, RegBits, ImmBits);
-declare_instr_fields!(LsDoubleRegBf,    LsBits, RegBits, ImmBits);
-declare_instr_fields!(LsDoubleImmBf,    LsBits, RegBits, ImmBits);
-declare_instr_fields!(LdrsbImmBf,       LsBits, RegBits, ImmBits);
-declare_instr_fields!(LdrsbRegBf,       LsBits, RegBits, ImmBits);
-declare_instr_fields!(LdrshImmBf,       LsBits, RegBits, ImmBits);
-declare_instr_fields!(LdrshRegBf,       LsBits, RegBits, ImmBits);
-
-declare_instr_fields!(MulBf,            RegBits, MultiplyBits);
+declare_instr_fields!(LsMiscBf,         LsBits, RegBits, ImmBits);
+declare_instr_fields!(SwpBf,            LsBits, RegBits);
 
 declare_instr_fields!(BranchBf,         BranchBits, ImmBits, RegBits);
 declare_instr_fields!(BxBf,             RegBits);
 
-declare_instr_fields!(SwpBf,            RegBits, LsBits);
-declare_instr_fields!(SwiBf,            ImmBits);
-declare_instr_fields!(BkptBf,           ImmBits);
-declare_instr_fields!(SatBf,            RegBits);
-declare_instr_fields!(ClzBf,            RegBits);
 declare_instr_fields!(CoprocBf,         CoprocBits, LsBits, ImmBits);
 declare_instr_fields!(StatusBf,         SrBits, RegBits, ImmBits, RotBits);
+
+declare_instr_fields!(SwiBf,            ImmBits);
+declare_instr_fields!(BkptBf,           ImmBits);
 

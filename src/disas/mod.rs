@@ -1,518 +1,171 @@
 //! Functions returning strings with formatted ARM instructions.
 
-use armbf::newtype::*;
-use armbf::traits::*;
-use armbf::fields::*;
+use armbf::inst::*;
+use std::mem::transmute;
 
-/// Sign extend to some number of bits
-#[inline(always)]
-pub fn sign_extend(x: i32, bits: i32) -> i32 {
-    if ( (x >> (bits - 1)) & 1) != 0 {
-        return x | !0 << bits
+pub mod mul;
+pub mod ctrl;
+pub mod branch;
+pub mod ls;
+pub mod dp;
+pub mod cp;
+
+/// 12-bit lookup table for ARM instructions.
+pub struct ARMLookupTable {
+    pub data: [fn(x: &u32) -> String; 0x1000],
+}
+impl ARMLookupTable {
+    unsafe fn insert(&mut self, idx: usize, func: *const fn()) {
+        self.data[idx] = transmute::<*const fn(), fn(x: &u32) -> String>(func);
     }
-    x
+
+    /// Build a new lookup table.
+    pub fn new() -> Self {
+        let mut lut = ARMLookupTable {
+            data: [undef_instr; 0x1000],
+        };
+
+        for i in 0..0x1000 {
+            let inst: u32 = ((i & 0x0ff0) << 16) | ((i & 0x000f) << 4);
+            unsafe {
+                lut.insert(i as usize, ArmInst::from_u32(inst).to_func());
+            }
+        }
+        lut
+    }
 }
 
-
-// ----------------------------------------------------------------------------
-// Control instructions
-
-pub fn swi(op: &SwiBf) -> String { format!("svc\t 0x{:08x}", op.imm24()) }
-
-pub fn bkpt(op: &BkptBf) -> String { 
-    format!("bkpt\t 0x{:04x}", 
-        ((op.imm12_hi() << 4) | op.imm4()) as u16
-    )
+pub fn undef_instr(x: &u32) -> String {
+    let idx = ((*x >> 16) & 0x0ff0) | ((*x >> 4) & 0x000f);
+    format!("No instruction; LUT index = {:04x}", idx)
 }
 
+/// To-be-implemented on ArmInst; maps instructions to functions.
+pub trait LutFunc { fn to_func(self) -> *const fn(); }
 
-pub fn mrs(op: &StatusBf) -> String {
-    let sr_name = if op.r() { "SPSR" } else { "CPSR" };
-    format!("mrs{}\t {}, {}",
-        Cond::from_u32(op.cond()), 
-        Register::from_u32(op.rd()),
-        sr_name
-    )
-}
+/// Map instructions to particular functions.
+impl LutFunc for ArmInst {
+    fn to_func(self) -> *const fn() {
 
-pub fn msr_imm(op: &StatusBf) -> String {
-    let sr_name = if op.r() { "SPSR" } else { "CPSR" };
+        macro_rules! cfn { ($func:expr) => { $func as *const fn() }}
 
-    let mut fields_str = std::string::String::new();
-    for idx in (0..4).rev() {
-        if (op.field_mask() & (1 << idx)) != 0 {
-            let bit = match idx {
-                0 => "c",
-                1 => "x",
-                2 => "s",
-                3 => "f",
-                _ => unreachable!(),
-            };
-            fields_str.push_str(bit);
+        match self {
+            ArmInst::MsrReg =>      cfn!(ctrl::msr_reg),
+            ArmInst::MsrImm =>      cfn!(ctrl::msr_imm),
+            ArmInst::Mrs =>         cfn!(ctrl::mrs),
+            ArmInst::Swi =>         cfn!(ctrl::svc),
+            ArmInst::Bkpt =>        cfn!(ctrl::bkpt),
+            ArmInst::Clz =>         cfn!(ctrl::clz),
+            ArmInst::Qadd =>        cfn!(ctrl::qadd),
+            ArmInst::Qsub =>        cfn!(ctrl::qsub),
+            ArmInst::QdAdd =>       cfn!(ctrl::qdadd),
+            ArmInst::QdSub =>       cfn!(ctrl::qdsub),
+
+            ArmInst::Mrc =>         cfn!(cp::mrc),
+            ArmInst::Mcr =>         cfn!(cp::mcr),
+
+            ArmInst::B =>           cfn!(branch::b),
+            ArmInst::Bl =>          cfn!(branch::bl),
+            ArmInst::Bx =>          cfn!(branch::bx),
+            ArmInst::BlxReg =>      cfn!(branch::blx_reg),
+            ArmInst::BlxImm =>      cfn!(branch::blx_imm),
+
+            ArmInst::LdrsbReg =>    cfn!(ls::ldrsb_reg),
+            ArmInst::LdrshReg =>    cfn!(ls::ldrsh_reg),
+            ArmInst::LdrsbImm =>    cfn!(ls::ldrsb_imm),
+            ArmInst::LdrshImm =>    cfn!(ls::ldrsh_imm),
+            ArmInst::StrdReg =>     cfn!(ls::strd_reg),
+            ArmInst::LdrdReg =>     cfn!(ls::ldrd_reg),
+            ArmInst::StrdImm =>     cfn!(ls::strd_imm),
+            ArmInst::LdrdImm =>     cfn!(ls::ldrd_imm),
+            ArmInst::StrhImm =>     cfn!(ls::strh_imm),
+            ArmInst::LdrhImm =>     cfn!(ls::ldrh_imm),
+            ArmInst::StrhReg =>     cfn!(ls::strh_reg),
+            ArmInst::LdrhReg =>     cfn!(ls::ldrh_reg),
+            ArmInst::Stmia =>       cfn!(ls::stmia),
+            ArmInst::Stmib =>       cfn!(ls::stmdb),
+            ArmInst::Stmda =>       cfn!(ls::stmda),
+            ArmInst::Stmdb =>       cfn!(ls::stmdb),
+            ArmInst::Ldmia =>       cfn!(ls::ldmia),
+            ArmInst::Ldmib =>       cfn!(ls::ldmib),
+            ArmInst::Ldmda =>       cfn!(ls::ldmda),
+            ArmInst::Ldmdb =>       cfn!(ls::ldmdb),
+            ArmInst::StrImm =>      cfn!(ls::str_imm),
+            ArmInst::LdrImm =>      cfn!(ls::ldr_imm),
+            ArmInst::StrbImm =>     cfn!(ls::strb_imm),
+            ArmInst::LdrbImm =>     cfn!(ls::ldrb_imm),
+            ArmInst::StrReg =>      cfn!(ls::str_reg),
+            ArmInst::LdrReg =>      cfn!(ls::ldr_reg),
+            ArmInst::StrbReg =>     cfn!(ls::strb_reg),
+            ArmInst::LdrbReg =>     cfn!(ls::ldrb_reg),
+            ArmInst::Swp =>         cfn!(ls::swp),
+            ArmInst::Swpb =>        cfn!(ls::swpb),
+
+            ArmInst::Mul =>         cfn!(mul::mul),
+            ArmInst::Mla =>         cfn!(mul::mla),
+            ArmInst::Umull =>       cfn!(mul::umull),
+            ArmInst::Umlal =>       cfn!(mul::umlal),
+            ArmInst::Smull =>       cfn!(mul::smull),
+            ArmInst::Smlal =>       cfn!(mul::smlal),
+            ArmInst::SmlaXy =>      cfn!(mul::smla_xy),
+            ArmInst::SmulwY =>      cfn!(mul::smulw_y),
+            ArmInst::SmlawY =>      cfn!(mul::smlaw_y),
+            ArmInst::SmlalXy =>     cfn!(mul::smlal_xy),
+            ArmInst::SmulXy =>      cfn!(mul::smul_xy),
+
+            ArmInst::AndRotImm =>   cfn!(dp::rot_imm_arith),
+            ArmInst::EorRotImm =>   cfn!(dp::rot_imm_arith),
+            ArmInst::SubRotImm =>   cfn!(dp::rot_imm_arith),
+            ArmInst::RsbRotImm =>   cfn!(dp::rot_imm_arith),
+            ArmInst::AddRotImm =>   cfn!(dp::rot_imm_arith),
+            ArmInst::AdcRotImm =>   cfn!(dp::rot_imm_arith),
+            ArmInst::SbcRotImm =>   cfn!(dp::rot_imm_arith),
+            ArmInst::RscRotImm =>   cfn!(dp::rot_imm_arith),
+            ArmInst::OrrRotImm =>   cfn!(dp::rot_imm_arith),
+            ArmInst::BicRotImm =>   cfn!(dp::rot_imm_arith),
+            ArmInst::TstRotImm =>   cfn!(dp::rot_imm_mov_cmp),
+            ArmInst::TeqRotImm =>   cfn!(dp::rot_imm_mov_cmp),
+            ArmInst::CmpRotImm =>   cfn!(dp::rot_imm_mov_cmp),
+            ArmInst::CmnRotImm =>   cfn!(dp::rot_imm_mov_cmp),
+            ArmInst::MovRotImm =>   cfn!(dp::rot_imm_mov_cmp),
+            ArmInst::MvnRotImm =>   cfn!(dp::rot_imm_mov_cmp),
+
+            ArmInst::AndShiftImm => cfn!(dp::shift_imm_arith),
+            ArmInst::EorShiftImm => cfn!(dp::shift_imm_arith),
+            ArmInst::SubShiftImm => cfn!(dp::shift_imm_arith),
+            ArmInst::RsbShiftImm => cfn!(dp::shift_imm_arith),
+            ArmInst::AddShiftImm => cfn!(dp::shift_imm_arith),
+            ArmInst::AdcShiftImm => cfn!(dp::shift_imm_arith),
+            ArmInst::SbcShiftImm => cfn!(dp::shift_imm_arith),
+            ArmInst::RscShiftImm => cfn!(dp::shift_imm_arith),
+            ArmInst::OrrShiftImm => cfn!(dp::shift_imm_arith),
+            ArmInst::BicShiftImm => cfn!(dp::shift_imm_arith),
+            ArmInst::TstShiftImm => cfn!(dp::shift_imm_cmp),
+            ArmInst::TeqShiftImm => cfn!(dp::shift_imm_cmp),
+            ArmInst::CmpShiftImm => cfn!(dp::shift_imm_cmp),
+            ArmInst::CmnShiftImm => cfn!(dp::shift_imm_cmp),
+            ArmInst::MovShiftImm => cfn!(dp::shift_imm_mov),
+            ArmInst::MvnShiftImm => cfn!(dp::shift_imm_mov),
+
+            ArmInst::AndShiftReg => cfn!(dp::shift_reg_arith),
+            ArmInst::EorShiftReg => cfn!(dp::shift_reg_arith),
+            ArmInst::SubShiftReg => cfn!(dp::shift_reg_arith),
+            ArmInst::RsbShiftReg => cfn!(dp::shift_reg_arith),
+            ArmInst::AddShiftReg => cfn!(dp::shift_reg_arith),
+            ArmInst::AdcShiftReg => cfn!(dp::shift_reg_arith),
+            ArmInst::SbcShiftReg => cfn!(dp::shift_reg_arith),
+            ArmInst::RscShiftReg => cfn!(dp::shift_reg_arith),
+            ArmInst::OrrShiftReg => cfn!(dp::shift_reg_arith),
+            ArmInst::BicShiftReg => cfn!(dp::shift_reg_arith),
+            ArmInst::TstShiftReg => cfn!(dp::shift_reg_cmp),
+            ArmInst::TeqShiftReg => cfn!(dp::shift_reg_cmp),
+            ArmInst::CmpShiftReg => cfn!(dp::shift_reg_cmp),
+            ArmInst::CmnShiftReg => cfn!(dp::shift_reg_cmp),
+            ArmInst::MovShiftReg => cfn!(dp::shift_reg_mov),
+            ArmInst::MvnShiftReg => cfn!(dp::shift_reg_mov),
+
+            _ => cfn!(undef_instr),
         }
     }
-
-    format!("msr{}\t {}_{}, #{}",
-        Cond::from_u32(op.cond()), 
-        sr_name,
-        fields_str,
-        op.imm8(),
-    )
 }
-
-pub fn msr_reg(op: &StatusBf) -> String {
-    let sr_name = if op.r() { "SPSR" } else { "CPSR" };
-
-    let mut fields_str = std::string::String::new();
-    for idx in (0..4).rev() {
-        if (op.field_mask() & (1 << idx)) != 0 {
-            let bit = match idx {
-                0 => "c",
-                1 => "x",
-                2 => "s",
-                3 => "f",
-                _ => unreachable!(),
-            };
-            fields_str.push_str(bit);
-        }
-    }
-
-    format!("msr{}\t {}_{}, {}",
-        Cond::from_u32(op.cond()), 
-        sr_name,
-        fields_str,
-        Register::from_u32(op.rm()),
-    )
-}
-
-
-
-
-// ----------------------------------------------------------------------------
-// Saturated add/sub instructions
-
-pub fn qadd(op: &SatBf) -> String { format!("qadd{}\t {}, {}, {}",
-        Cond::from_u32(op.cond()), 
-        Register::from_u32(op.rd()),
-        Register::from_u32(op.rm()), 
-        Register::from_u32(op.rn()),
-    )
-}
-pub fn qdadd(op: &SatBf) -> String { format!("qdadd{}\t {}, {}, {}",
-        Cond::from_u32(op.cond()), 
-        Register::from_u32(op.rd()),
-        Register::from_u32(op.rm()), 
-        Register::from_u32(op.rn()),
-    )
-}
-pub fn qsub(op: &SatBf) -> String { format!("qsub{}\t {}, {}, {}",
-        Cond::from_u32(op.cond()), 
-        Register::from_u32(op.rd()),
-        Register::from_u32(op.rm()), 
-        Register::from_u32(op.rn()),
-    )
-}
-pub fn qdsub(op: &SatBf) -> String { format!("qdsub{}\t {}, {}, {}",
-        Cond::from_u32(op.cond()), 
-        Register::from_u32(op.rd()),
-        Register::from_u32(op.rm()), 
-        Register::from_u32(op.rn()),
-    )
-}
-
-
-// ----------------------------------------------------------------------------
-// Load/store instructions
-
-pub fn ls_imm(op: &LsImmBf) -> String {
-    let name = match op.l() { true => "ldr", false => "str", };
-    let width = match op.b() { true => "b", false => "", };
-    format!("{}{}\t {}, [{}, #{}]", 
-        name, width, 
-        Register::from_u32(op.rd()),
-        Register::from_u32(op.rn()),
-        op.imm12(),
-    )
-}
-
-pub fn ls_multi(op: &LsMultiBf) -> String {
-    let mut reglist_str = std::string::String::new();
-    let rn = Register::from_u32(op.rn());
-    let wb = if op.w() { "!" } else { "" };
-    let name = if op.l() { "ldm" } else { "stm" };
-
-    for idx in 0..16 {
-        if (op.reglist() & (1 << idx)) != 0 {
-            reglist_str.push_str( format!("{}, ", 
-                    Register::from_u32(idx)).as_ref()
-            );
-        }
-    }
-    reglist_str.truncate(reglist_str.len() - 2);
-    format!("{} {}{}, {{{}}}", name, rn, wb, reglist_str)
-}
-
-pub fn swp(op: &SwpBf) -> String { 
-    let name = if op.b() { "swpb" } else { "swp" };
-    format!("{}\t {}, {}, [{}]", 
-        name,
-        Register::from_u32(op.rd()),
-        Register::from_u32(op.rm()),
-        Register::from_u32(op.rn()),
-    )
-}
-
-pub fn ls_halfword_imm(op: &LsHalfImmBf) -> String {
-    let name = if op.l() { "ldrh" } else { "strh" };
-    let imm = if op.u() {
-        ((op.off_hi() << 4) | op.off_lo()) as i32
-    } else {
-        (((op.off_hi() << 4) | op.off_lo()) as i32).wrapping_neg()
-    };
-    format!("{}{}\t {}, [{}, #{}]",
-        name,
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd()),
-        Register::from_u32(op.rn()),
-        imm,
-    )
-}
-
-pub fn ls_halfword_reg(op: &LsHalfRegBf) -> String {
-    let name = if op.l() { "ldrh" } else { "strh" };
-    format!("{}{}\t {}, [{}, {}]",
-        name,
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd()),
-        Register::from_u32(op.rn()),
-        Register::from_u32(op.rm()),
-    )
-}
-
-pub fn clz(op: &ClzBf) -> String {
-    format!("clz{}\t {}, {}",
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd()),
-        Register::from_u32(op.rm()),
-    )
-}
-
-
-// ----------------------------------------------------------------------------
-// Data processing instructions
-
-pub fn dp_rot_imm(op: &DpRotImmBf) -> String { 
-    let opcd = Opcode::from_u32(op.opcd());
-    let cond = Cond::from_u32(op.cond());
-    let rn = Register::from_u32(op.rn());
-    let rd = Register::from_u32(op.rd());
-    let imm8 = op.imm8();
-
-    return match opcd {
-        Opcode::Cmp => format!("{}{}\t {}, #{}", opcd, cond, rn, imm8),
-        Opcode::Cmn => format!("{}{}\t {}, #{}", opcd, cond, rn, imm8),
-        Opcode::Mov => format!("{}{}\t {}, #{}", opcd, cond, rd, imm8),
-        Opcode::Mvn => format!("{}{}\t {}, #{}", opcd, cond, rd, imm8),
-        Opcode::Teq => format!("{}{}\t {}, #{}", opcd, cond, rn, imm8),
-        Opcode::Tst => format!("{}{}\t {}, #{}", opcd, cond, rn, imm8),
-        _ => format!("{}{}\t {}, {}, #{}", opcd, cond, rd, rn, imm8),
-    };
-
-}
-
-pub fn dp_shift_imm(op: &DpShiftImmBf) -> String { 
-    let opcd = Opcode::from_u32(op.opcd());
-    let cond = Cond::from_u32(op.cond());
-    let rn = Register::from_u32(op.rn());
-    let rd = Register::from_u32(op.rd());
-    let rm = Register::from_u32(op.rm());
-    let shift_imm = op.shift_imm();
-    let shift_type = ShifterType::from_u32(op.shift());
-
-    match opcd {
-        Opcode::Cmn => { 
-            if shift_imm == 0 {
-                return format!("{}{}\t {}, {}", opcd, cond, rn, rm);
-            }
-            format!("{}{}\t {}, {}", opcd, cond, rn, 
-                format!("{}, {} #{}", rm, shift_type, shift_imm)
-            )
-        },
-        Opcode::Cmp => { 
-            if shift_imm == 0 {
-                return format!("{}{}\t {}, {}", opcd, cond, rn, rm);
-            }
-            format!("{}{}\t {}, {}", opcd, cond, rn, 
-                format!("{}, {} #{}", rm, shift_type, shift_imm)
-            )
-        },
-
-        Opcode::Mov => { 
-            if shift_imm == 0 {
-                return format!("{}{}\t {}, {}", opcd, cond, rd, rm);
-            }
-            format!("{}{}\t {}, {}, #{}", shift_type, cond, rd, 
-                rm, shift_imm
-            )
-        },
-
-        Opcode::Mvn => { 
-            if shift_imm ==0 {
-                return format!("{}{}\t {}, {}", opcd, cond, rd, rm);
-            }
-            format!("{}{}\t {}, {}, {} #{}", opcd, cond, rd, 
-                rm, shift_type, shift_imm
-            )
-        },
-
-        Opcode::Teq => { 
-            if shift_imm == 0 {
-                return format!("{}{}\t {}, {}", opcd, cond, rn, rm);
-            }
-            format!("{}{}\t {}, {}", opcd, cond, rn, 
-                format!("{}, {} #{}", rm, shift_type, shift_imm)
-            )
-        },
-        Opcode::Tst => { 
-            if shift_imm == 0 {
-                return format!("{}{}\t {}, {}", opcd, cond, rn, rm);
-            }
-            format!("{}{}\t {}, {}", opcd, cond, rn, 
-                format!("{}, {} #{}", rm, shift_type, shift_imm)
-            )
-        },
-        _ => { 
-            if shift_imm == 0 {
-                return format!("{}{}\t {}, {}, {}", opcd, cond, rd, rn, rm);
-            }
-            format!("{}{}\t {}, {}, {} {} #{}", opcd, cond, rd, rn, 
-                rm, shift_type, shift_imm
-            )
-        },
-    }
-}
-
-pub fn dp_shift_reg(op: &DpShiftRegBf) -> String { 
-    let opcd = Opcode::from_u32(op.opcd());
-    let cond = Cond::from_u32(op.cond());
-    let rn = Register::from_u32(op.rn());
-    let rd = Register::from_u32(op.rd());
-    let rm = Register::from_u32(op.rm());
-    let rs = Register::from_u32(op.rs());
-    let shift_type = ShifterType::from_u32(op.shift());
-
-    match opcd {
-        Opcode::Cmn => { format!("{}{}\t {}, {}", opcd, cond, rn, 
-            format!("{}, {} {}", rm, shift_type, rs))
-        },
-        Opcode::Cmp => { format!("{}{}\t {}, {}", opcd, cond, rn, 
-            format!("{}, {} {}", rm, shift_type, rs))
-        },
-
-        Opcode::Mov => { format!("{}{}\t {}, {}, {}", 
-            shift_type, cond, rd, rm, rs)
-        },
-
-        Opcode::Mvn => { format!("{}{}\t {}, {}, {} {}", 
-            opcd, cond, rd, rm, shift_type, rs)
-        },
-
-        Opcode::Teq => { format!("{}{}\t {}, {}", opcd, cond, rn, 
-            format!("{}, {} {}", rm, shift_type, rs))
-        },
-        Opcode::Tst => { format!("{}{}\t {}, {}", opcd, cond, rn, 
-            format!("{}, {} {}", rm, shift_type, rs))
-        },
-        _ => { format!("{}{}\t {}, {}, {} {} {}", opcd, cond, rd, rn, 
-            rm, shift_type, rs)
-        },
-    }
-}
-
-
-// ----------------------------------------------------------------------------
-// Branching instructions
-
-pub fn blx_imm(op: &BranchBf, offset: u32) -> String { 
-    let imm24 = sign_extend(op.imm24() as i32, 24) << 2;
-    let dest = (offset as i64) + (imm24 as i64) + 8;
-    format!("blx{}\t {:04x}",
-        Cond::from_u32(op.cond()),
-        dest
-    )
-}
-pub fn blx_reg(op: &BranchBf) -> String { 
-    format!("blx\t {}", Register::from_u32(op.rm()))
-}
-
-pub fn bx(op: &BxBf) -> String { format!("bx{}\t {}", 
-    Cond::from_u32(op.cond()), Register::from_u32(op.rm()))
-}
-pub fn branch(op: &BranchBf, offset: u32) -> String {
-    let name = if op.link() { "bl" } else { "b" };
-    let imm24 = sign_extend(op.imm24() as i32, 24) << 2;
-    let dest = (offset as i64) + (imm24 as i64) + 8;
-    format!("{}{}\t {:04x}",
-        name, 
-        Cond::from_u32(op.cond()),
-        dest,
-    )
-}
-
-
-// ----------------------------------------------------------------------------
-// Multiply instructions (extended)
-
-pub fn smla_xy(op: &MulBf) -> String {
-    let xy = match (op.x(), op.y()) {
-        (false, false) => "bb", (false, true) => "bt",
-        (true, false) => "tb", (true, true) => "tt",
-    };
-    format!("slma{}{}\t {}, {}, {}, {}", xy,
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_alt()),
-        Register::from_u32(op.rm()),
-        Register::from_u32(op.rs()),
-        Register::from_u32(op.rn_alt()),
-    )
-}
-
-pub fn smlal_xy(op: &MulBf) -> String {
-    let xy = match (op.x(), op.y()) {
-        (false, false) => "bb", (false, true) => "bt",
-        (true, false) => "tb", (true, true) => "tt",
-    };
-    format!("slmal{}{} {}, {}, {}, {}", xy,
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rn_alt()),
-        Register::from_u32(op.rd_alt()),
-        Register::from_u32(op.rm()),
-        Register::from_u32(op.rs()),
-    )
-}
-
-pub fn smul_xy(op: &MulBf) -> String {
-    let xy = match (op.x(), op.y()) {
-        (false, false) => "bb", (false, true) => "bt",
-        (true, false) => "tb", (true, true) => "tt",
-    };
-    format!("smul{}{}  {}, {}, {}", xy,
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_alt()),
-        Register::from_u32(op.rm()),
-        Register::from_u32(op.rs()),
-    )
-}
-
-pub fn smlaw_y(op: &MulBf) -> String {
-    let y = if op.y() { "t" } else { "b" };
-    format!("slmaw{}{}  {}, {}, {}, {}", y,
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_alt()),
-        Register::from_u32(op.rm()),
-        Register::from_u32(op.rs()),
-        Register::from_u32(op.rn_alt()),
-    )
-}
-
-pub fn smulw_y(op: &MulBf) -> String {
-    let y = if op.y() { "t" } else { "b" };
-    format!("smulw{}{}  {}, {}, {}", y,
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_alt()),
-        Register::from_u32(op.rm()),
-        Register::from_u32(op.rs()),
-    )
-}
-
-
-// ----------------------------------------------------------------------------
-// Multiply instructions
-
-pub fn mul(op: &MulBf) -> String {
-    format!("mul{}\t {}, {}, {}",
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_alt()),
-        Register::from_u32(op.rm()),
-        Register::from_u32(op.rs()),
-    )
-}
-pub fn mla(op: &MulBf) -> String {
-    format!("mul{}\t {}, {}, {}, {}",
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_alt()),
-        Register::from_u32(op.rm()),
-        Register::from_u32(op.rs()),
-        Register::from_u32(op.rn_alt()),
-    )
-}
-
-pub fn umull(op: &MulBf) -> String {
-    format!("umull{}\t {}, {}, {}, {}",
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_lo()),
-        Register::from_u32(op.rd_hi()),
-        Register::from_u32(op.rm()),
-        Register::from_u32(op.rs()),
-    )
-}
-
-pub fn umlal(op: &MulBf) -> String {
-    format!("umlal{}\t {}, {}, {}, {}",
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_lo()),
-        Register::from_u32(op.rd_hi()),
-        Register::from_u32(op.rm()),
-        Register::from_u32(op.rs()),
-    )
-}
-
-pub fn smlal(op: &MulBf) -> String {
-    format!("smlal{}\t {}, {}, {}, {}",
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_lo()),
-        Register::from_u32(op.rd_hi()),
-        Register::from_u32(op.rm()),
-        Register::from_u32(op.rs()),
-    )
-}
-
-pub fn smull(op: &MulBf) -> String {
-    format!("smull{}\t {}, {}, {}, {}",
-        Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_lo()),
-        Register::from_u32(op.rd_hi()),
-        Register::from_u32(op.rm()),
-        Register::from_u32(op.rs()),
-    )
-}
-
-
-// ----------------------------------------------------------------------------
-// Coprocessor instructions
-
-pub fn mrc(op: &CoprocBf) -> String {
-    format!("mrc{}\t {}, {}, {}, {}, {}, {{{}}}",
-        Cond::from_u32(op.cond()),
-        CoprocNumber::from_u32(op.cp_num()),
-        op.opcd1(),
-        Register::from_u32(op.crd()),
-        CoprocRegister::from_u32(op.crn()),
-        CoprocRegister::from_u32(op.crm()),
-        op.opcd2(),
-    )
-}
-
-pub fn mcr(op: &CoprocBf) -> String {
-    format!("mcr{}\t {}, {}, {}, {}, {}, {{{}}}",
-        Cond::from_u32(op.cond()),
-        CoprocNumber::from_u32(op.cp_num()),
-        op.opcd1(),
-        Register::from_u32(op.crd()),
-        CoprocRegister::from_u32(op.crn()),
-        CoprocRegister::from_u32(op.crm()),
-        op.opcd2(),
-    )
-}
-
 

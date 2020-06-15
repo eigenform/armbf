@@ -8,6 +8,8 @@
 #![allow(unused_macros)]
 #![allow(unused_attributes)]
 
+#![feature(arbitrary_enum_discriminant)]
+
 //#![feature(trace_macros)]
 //trace_macros!(true);
 

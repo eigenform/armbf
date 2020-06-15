@@ -12,10 +12,21 @@ _DpRotImm:
 	DpRotImm_2 r4, r5, 0
 
 _DpShiftImm:
-	DpShiftImm_1 r3, r4, lsl, 4
-	DpShiftImm_1 r3, r4, lsr, 4
-	DpShiftImm_1 r3, r4, asr, 4
-	DpShiftImm_1 r3, r4, ror, 4
+	DpShiftImm_1 cmn r3, r4
+	DpShiftImm_1 cmp r3, r4
+	DpShiftImm_1 mov r3, r4
+	DpShiftImm_1 mvn r3, r4
+	DpShiftImm_1 teq r3, r4
+	DpShiftImm_1 tst r3, r4
+	DpShiftImm_1 cmn r3, r4
+	DpShiftImm_1 cmp r3, r4
+	DpShiftImm_1 mov r3, r4
+	DpShiftImm_1 mvn r3, r4
+	DpShiftImm_1 teq r3, r4
+	DpShiftImm_1 tst r3, r4
+
+
+
 	DpShiftImm_2 r3, r4, r5, lsl, 4
 	DpShiftImm_2 r3, r4, r5, lsr, 4
 	DpShiftImm_2 r3, r4, r5, asr, 4

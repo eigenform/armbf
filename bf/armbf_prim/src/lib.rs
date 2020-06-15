@@ -35,6 +35,16 @@ pub const LSMISC_MATCH:         u32 = 0b0000_00000000_000000000000_1001_0000;
 #[macro_export]
 macro_rules! bit { ($val:expr, $bit:expr) => { ($val & (1 << $bit)) != 0 }}
 
+#[macro_export]
+macro_rules! to_dec { ($val:expr) => { 
+    ((($val >> 16) & 0x0ff0) | (($val >> 4) & 0x000f))
+}}
+
+#[macro_export]
+macro_rules! from_dec { ($val:expr) => { 
+    ((($val & 0x0ff0) << 16) | (($val & 0x000f) << 4))
+}}
+
 
 // ----------------------------------------------------------------------------
 // Macros specific to decoding ARM instructions.
