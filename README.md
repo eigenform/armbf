@@ -1,18 +1,15 @@
-# armdecode
-Helper crate for decoding ARMv5 instructions. This is probably not very fast.
+# armbf
+Helper crate for decoding ARMv5 instructions. 
 
 ## Overview
 ```
-├── benches/	- Benchmarks
-├── bf/		- Some dependencies 
-├── Cargo.toml
-├── README.md
+├── armbf_derive/	- Procedural macros for bitfield accesses
+├── armbf_prim/		- Other macros for bitfield accesses
+├── examples/		- Some examples of binary crates using armbf
 ├── src/
-└── testsuite/	- ARM code for running tests
+└── testsuite/		- ARM code for testing
 ```
 
 ## Usage
-Presumably you plug this into some other program that needs to decode ARMv5
-instructions. See the programs in [`src/bin/`](src/bin/) for an example.
-
+See [`examples/disas/`](examples/disas/) for example code.
 
