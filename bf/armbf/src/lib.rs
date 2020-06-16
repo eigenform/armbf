@@ -8,8 +8,6 @@
 #![allow(unused_macros)]
 #![allow(unused_attributes)]
 
-#![feature(arbitrary_enum_discriminant)]
-
 //#![feature(trace_macros)]
 //trace_macros!(true);
 
@@ -19,4 +17,5 @@ pub mod traits;
 pub mod newtype;
 pub mod fields;
 pub mod inst;
+pub mod lut;
 

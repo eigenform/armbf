@@ -7,17 +7,17 @@
 use armdecode::*;
 use armdecode::disas;
 
+use disas::{LutFunc, undef_instr};
+
 use armbf::newtype::*;
 use armbf::inst::*;
+use armbf::lut::*;
 
 use std::time::Instant;
 use std::io::Read;
 
 extern crate rand;
 use rand::prelude::*;
-
-// Module with functions for formatting particular instructions
-//pub mod armfmt;
 
 /// Convert a Vec<u8> into a Vec<u32> (in big-endian representation).
 pub fn make_u32_buf(src_buf: &Vec<u8>) -> Vec<u32> {
@@ -36,31 +36,34 @@ pub fn make_u32_buf(src_buf: &Vec<u8>) -> Vec<u32> {
 /// Read a file with some code into some buffer, then disassemble it.
 fn main() {
     let mut buf = Vec::<u8>::new();
-    //let mut file = std::fs::File::open("testsuite/arm_test.bin").unwrap();
-    let mut file = std::fs::File::open("testsuite/arm_decode_test.bin").unwrap();
+    let mut file = std::fs::File::open("testsuite/arm_decode_test.bin")
+        .unwrap();
+
     file.read_to_end(&mut buf).unwrap();
-    let mut databuf = make_u32_buf(&buf);
-    disassemble(&databuf);
+    let mut dbuf = make_u32_buf(&buf);
+    disassemble(&dbuf);
 }
 
+
 /// Iterate through a buffer and decode/disassemble each value.
-fn disassemble(databuf: &Vec<u32>) {
+fn disassemble(dbuf: &Vec<u32>) {
     let mut offset = 0x0u32;
-    let mut lut = disas::ARMLookupTable::new();
-    println!("LUT is {:?}b", std::mem::size_of::<disas::ARMLookupTable>());
+    let mut lut = CreateArmLut::<LutFunc>(LutFunc(undef_instr));
+    println!("LUT is {:?}b", std::mem::size_of_val(&lut));
 
     let start = Instant::now();
-    for val in databuf.iter() {
+    for val in dbuf.iter() {
 
-        // as usize??
         let idx = (((val >> 16) & 0x0ff0) | ((val >> 4) & 0x000f)) as usize;
-        let disas_str = lut.data[idx](&val);
+        let disas_str = lut.data[idx].0(&val);
         println!("{:04x}:\t {:08x} {:04x}\t {}", offset, val, 
             ((val >> 16) & 0x0ff0) | ((val >> 4) & 0x000f), disas_str);
         offset += 4;
     }
     let dur = start.elapsed();
-    let mdips = ((1f64 / dur.as_secs_f64()) * databuf.len() as f64) / 1_000_000f64;
-    println!("Disassembled {} instrs in {:?} (~{:.4}Mdips)", databuf.len(), dur, mdips);
+    let mdips = ((1f64 / dur.as_secs_f64()) * dbuf.len() as f64) / 1_000_000f64;
+
+    println!("Disassembled {} instrs in {:?} (~{:.4}Mdips)", 
+        dbuf.len(), dur, mdips);
 }
 
