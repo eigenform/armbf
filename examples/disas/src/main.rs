@@ -4,20 +4,19 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
 
-use armdecode::*;
-use armdecode::disas;
+extern crate rand;
+use rand::prelude::*;
 
-use disas::{LutFunc, undef_instr};
+use std::time::Instant;
+use std::io::Read;
 
 use armbf::newtype::*;
 use armbf::inst::*;
 use armbf::lut::*;
 
-use std::time::Instant;
-use std::io::Read;
+pub mod disas;
 
-extern crate rand;
-use rand::prelude::*;
+use disas::{LutFunc, undef_instr};
 
 /// Convert a Vec<u8> into a Vec<u32> (in big-endian representation).
 pub fn make_u32_buf(src_buf: &Vec<u8>) -> Vec<u32> {
@@ -36,7 +35,7 @@ pub fn make_u32_buf(src_buf: &Vec<u8>) -> Vec<u32> {
 /// Read a file with some code into some buffer, then disassemble it.
 fn main() {
     let mut buf = Vec::<u8>::new();
-    let mut file = std::fs::File::open("testsuite/arm_decode_test.bin")
+    let mut file = std::fs::File::open("../../testsuite/arm_decode_test.bin")
         .unwrap();
 
     file.read_to_end(&mut buf).unwrap();
