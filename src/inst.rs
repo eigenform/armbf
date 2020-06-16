@@ -1,6 +1,5 @@
 //! Defines a set of decode-able ARM instructions.
 
-use crate::newtype::*;
 use crate::fields::*;
 use armbf_prim::*;
 

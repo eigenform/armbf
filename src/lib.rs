@@ -1,11 +1,21 @@
-//! Exposes functions for decoding ARM instructions.
+//! Exposes wrapper types around unsigned 32-bit numeric representations of varous
+//! types of ARM instructions.
+//!
+//! Each of the traits defined in this crate have a corresponding derive macro 
+//! defined within the armbf_derive crate. The derive macros depend on all of
+//! the generic bitfield getter/setter macros defined in the prim module.
 
-#![allow(unused_variables)]
-#![allow(dead_code)]
 #![allow(unused_macros)]
-//#![allow(unused_imports)]
+#![allow(unused_attributes)]
 
-use armbf::newtype::*;
-use armbf::inst::*;
-use armbf_prim::*;
+//#![feature(trace_macros)]
+//trace_macros!(true);
+
+#[macro_use]
+
+pub mod traits;
+pub mod newtype;
+pub mod fields;
+pub mod inst;
+pub mod lut;
 

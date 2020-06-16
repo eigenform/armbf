@@ -47,7 +47,7 @@ fn main() {
 /// Iterate through a buffer and decode/disassemble each value.
 fn disassemble(dbuf: &Vec<u32>) {
     let mut offset = 0x0u32;
-    let mut lut = CreateArmLut::<LutFunc>(LutFunc(undef_instr));
+    let mut lut = make_arm_lut::<LutFunc>(LutFunc(undef_instr));
     println!("LUT is {:?}b", std::mem::size_of_val(&lut));
 
     let start = Instant::now();
