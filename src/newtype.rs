@@ -37,7 +37,7 @@ declare_instr_fields!(SwpBf,            LsBits, RegBits);
 declare_instr_fields!(BranchBf,         BranchBits, ImmBits, RegBits);
 declare_instr_fields!(BxBf,             RegBits);
 
-declare_instr_fields!(CoprocBf,         CoprocBits, LsBits, ImmBits);
+declare_instr_fields!(CoprocBf,         CoprocBits, LsBits, ImmBits, RegBits);
 declare_instr_fields!(StatusBf,         SrBits, RegBits, ImmBits, RotBits);
 
 declare_instr_fields!(SwiBf,            ImmBits);
