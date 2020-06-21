@@ -1,3 +1,4 @@
+//! Generic implementation of an ARMv5 lookup table.
 
 use std::marker::Copy;
 use crate::inst::*;

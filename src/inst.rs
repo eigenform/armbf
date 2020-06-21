@@ -158,9 +158,11 @@ impl ArmInst {
     }
 }
 
-/// Top-level decoder for ARM instructions.
 impl ArmInst {
 
+    /// Top-level decoder for ARM instructions.
+    ///
+    /// Given some 32-bit number, return the corresponding ARM instruction.
     pub fn decode(x: u32) -> Self { 
         match get_group!(x) {
             0b000 => { 

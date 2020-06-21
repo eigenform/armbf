@@ -62,7 +62,9 @@ impl fmt::Display for Cond {
 /// Data-processing opcodes.
 #[derive(Debug)]
 pub enum Opcode {
-    None, And, Eor, Sub, Rsb, Add, Adc, Sbc, Rsc, Tst, Teq, Cmp, Cmn, Orr, Mov, Bic, Mvn,
+    None, 
+    And, Eor, Sub, Rsb, Add, Adc, Sbc, Rsc, 
+    Tst, Teq, Cmp, Cmn, Orr, Mov, Bic, Mvn,
 }
 impl Opcode {
     pub fn from_u32(x: u32) -> Self {
@@ -112,7 +114,7 @@ impl fmt::Display for Opcode {
 }
 
 
-/// Registers.
+/// General-purpose registers.
 #[derive(Debug)]
 pub enum Register {
     r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, ip, sp, lr, pc
@@ -165,6 +167,7 @@ impl fmt::Display for Register {
 }
 
 
+/// Representing different kinds of shifter operations.
 pub enum ShifterType { Lsl, Lsr, Asr, Ror, }
 impl fmt::Display for ShifterType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -211,6 +214,7 @@ impl ShifterType {
     }
 }
 
+/// Representing different coprocessor numbers.
 #[derive(Debug)]
 pub enum CoprocNumber {
     p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15
@@ -262,6 +266,7 @@ impl fmt::Display for CoprocNumber {
 }
 
 
+/// Representing different coprocessor registers.
 #[derive(Debug)]
 pub enum CoprocRegister {
     cr0, cr1, cr2, cr3, cr4, cr5, cr6, cr7, 
