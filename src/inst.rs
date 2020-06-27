@@ -1,7 +1,266 @@
-//! Defines a set of decode-able ARM instructions.
+//! Defines a set of decode-able/supported ARM and Thumb instructions.
 
 use crate::fields::*;
 use armbf_prim::*;
+
+/// The set of supported THUMB instructions.
+#[derive(Debug)]
+pub enum ThumbInst {
+    None,
+
+    RsbImm,
+
+    LdrshReg, 
+    LdrbReg, 
+    LdrhReg, 
+    LdrReg, 
+    LdrsbReg,
+    StrbReg, 
+    StrhReg, 
+    StrReg,
+
+    LdrImm2, 
+    StrImm2, 
+    LdrhImm, 
+    StrhImm,
+
+    LdrbImm, 
+    StrbImm, 
+    LdrImm1, 
+    StrImm1,
+
+    SubImm1, 
+    AddImm1, 
+    SubReg, 
+    AddReg1,
+
+    Bx, 
+    BlxReg, 
+    MovReg, 
+    CmpReg2, 
+    AddReg2,
+
+    AsrImm, 
+    LsrImm, 
+    LslImm,
+
+    SubImm2, AddImm2,
+    CmpImm, MovImm, 
+
+    AndReg, EorReg, LslReg, LsrReg,
+    AsrReg, AdcReg, SbcReg, RorReg,
+    TstReg, CmnReg, OrrReg, MulReg,
+    BicReg, MvnReg, CmpReg1,
+
+    AddImmSp7, AddImmPc7, SubImmSp7,
+
+    Push, Pop,
+    Swi, Bkpt, 
+    BranchCond, BranchUncond,
+
+    LdrLit,
+    AddImmPc, AddImmSp,
+    Stmia, Ldmia,
+}
+
+impl ThumbInst {
+
+    #[inline]
+    fn decode_dp_fmt5(x: u16) -> ThumbInst {
+        match (x & 0b0000_0011_1100_0000) >> 6 {
+            0b0000 => ThumbInst::AndReg,
+            0b0001 => ThumbInst::EorReg,
+            0b0010 => ThumbInst::LslReg,
+            0b0011 => ThumbInst::LsrReg,
+            0b0100 => ThumbInst::AsrReg,
+            0b0101 => ThumbInst::AdcReg,
+            0b0110 => ThumbInst::SbcReg,
+            0b0111 => ThumbInst::RorReg,
+            0b1000 => ThumbInst::TstReg,
+            0b1001 => ThumbInst::RsbImm,
+            0b1010 => ThumbInst::CmpReg1,
+            0b1011 => ThumbInst::CmnReg,
+            0b1100 => ThumbInst::OrrReg,
+            0b1101 => ThumbInst::MulReg,
+            0b1110 => ThumbInst::BicReg,
+            0b1111 => ThumbInst::MvnReg,
+            _ => panic!("No match {:04x}", x),
+        }
+    }
+
+    #[inline]
+    fn decode_dp_fmt3(x: u16) -> ThumbInst {
+        match (x & 0b0001_1000_0000_0000) >> 11 {
+            0b00 => ThumbInst::MovImm,
+            0b01 => ThumbInst::CmpImm,
+            0b10 => ThumbInst::AddImm2,
+            0b11 => ThumbInst::SubImm2,
+            _ => panic!("No match {:04x}", x),
+        }
+    }
+
+    #[inline]
+    fn decode_lsreg(x: u16) -> ThumbInst {
+        match (x & 0b0000_1110_0000_0000) >> 9 {
+            0b000 => ThumbInst::StrReg,
+            0b001 => ThumbInst::StrhReg,
+            0b010 => ThumbInst::StrbReg,
+            0b011 => ThumbInst::LdrsbReg,
+            0b100 => ThumbInst::LdrReg,
+            0b101 => ThumbInst::LdrhReg,
+            0b110 => ThumbInst::LdrbReg,
+            0b111 => ThumbInst::LdrshReg,
+            _ => panic!("No match {:04x}", x),
+        }
+    }
+
+    #[inline]
+    fn decode_dp_special(x: u16) -> ThumbInst {
+        match (x & 0b0000_0011_0000_0000) >> 8 {
+            // Data-processing Format 8
+            0b00 => ThumbInst::AddReg2,
+            0b01 => ThumbInst::CmpReg2,
+            0b10 => ThumbInst::MovReg,
+            // Branch/exchange
+            0b11 => {
+                if bit!(x, 7) {
+                    return ThumbInst::BlxReg;
+                } else {
+                    return ThumbInst::Bx;
+                }
+            },
+            _ => panic!("No match {:04x}", x),
+        }
+    }
+
+    #[inline]
+    fn decode_dp_fmt1_fmt2(x: u16) -> ThumbInst {
+        match (x & 0b0000_0110_0000_0000) >> 9 {
+            // Data-processing Format 1
+            0b00 => ThumbInst::AddReg1,
+            0b01 => ThumbInst::SubReg,
+
+            // Data-processing Format 2
+            0b10 => ThumbInst::AddImm1,
+            0b11 => ThumbInst::SubImm1,
+            _ => panic!("No match {:04x}", x),
+        }
+    }
+
+    #[inline]
+    fn decode_ls_wb_imm(x: u16) -> ThumbInst {
+        match (x & 0b0001_1000_0000_0000) >> 11 {
+            0b00 => ThumbInst::StrImm1,
+            0b01 => ThumbInst::LdrImm1,
+            0b10 => ThumbInst::StrbImm,
+            0b11 => ThumbInst::LdrbImm,
+            _ => panic!("No match {:04x}", x),
+        }
+    }
+
+    #[inline]
+    fn decode_ls_half_stack(x: u16) -> ThumbInst {
+        match (x & 0b0001_1000_0000_0000) >> 11 {
+            // Load/store halfword
+            0b00 => ThumbInst::StrhImm,
+            0b01 => ThumbInst::LdrhImm,
+            // Load/store stack
+            0b10 => ThumbInst::StrImm2,
+            0b11 => ThumbInst::LdrImm2,
+            _ => panic!("No match {:04x}", x),
+        }
+    }
+
+    #[inline]
+    fn decode_misc(x: u16) -> ThumbInst {
+        match (x & 0b0000_1111_0000_0000) >> 8 {
+            0b0000 => {
+                if bit!(x, 7) {
+                    return ThumbInst::SubImmSp7;
+                } else {
+                    return ThumbInst::AddImmSp7;
+                }
+            },
+            0b0100 |
+            0b0101 => return ThumbInst::Push,
+
+            0b1100 |
+            0b1101 => return ThumbInst::Pop,
+
+            0b1110 => return ThumbInst::Bkpt,
+            _ => return ThumbInst::None,
+        }
+    }
+
+    #[inline]
+    fn decode_cond_branch(x: u16) -> ThumbInst {
+        match (x & 0b0000_1111_0000_0000) >> 8 {
+            0b1110 => return ThumbInst::None,
+            0b1111 => return ThumbInst::Swi,
+            _ => return ThumbInst::BranchCond,
+        }
+    }
+
+}
+
+
+impl ThumbInst {
+    /// Decode a THUMB instruction.
+    pub fn decode(x: u16) -> ThumbInst {
+        match (x & 0b1110_0000_0000_0000) >> 13 {
+            0b000 => {
+                match (x & 0b0001_1000_0000_0000) >> 11 {
+                    // Data-processing Format 4
+                    0b00 => ThumbInst::LslImm,
+                    0b01 => ThumbInst::LsrImm,
+                    0b10 => ThumbInst::AsrImm,
+                    // Data-processing format 1/2
+                    0b11 => ThumbInst::decode_dp_fmt1_fmt2(x),
+                    _ => panic!("No match {:04x}", x),
+                }
+            },
+            0b001 => ThumbInst::decode_dp_fmt3(x),
+            0b010 => {
+                match (x & 0b0001_1100_0000_0000) >> 10 {
+                    0b000 => ThumbInst::decode_dp_fmt5(x),
+                    0b001 => ThumbInst::decode_dp_special(x),
+                    0b010 |
+                    0b011 => ThumbInst::LdrLit,
+
+                    0b100 |
+                    0b101 |
+                    0b110 |
+                    0b111 => ThumbInst::decode_lsreg(x), 
+                    _ => panic!("No match {:04x}", x),
+                }
+            },
+            0b011 => ThumbInst::decode_ls_wb_imm(x),
+            0b100 => ThumbInst::decode_ls_half_stack(x),
+            0b101 => {
+                match (x & 0b0001_1000_0000_0000) >> 11 {
+                    0b00 => ThumbInst::AddImmPc,
+                    0b01 => ThumbInst::AddImmSp,
+                    0b10 |
+                    0b11 => ThumbInst::decode_misc(x),
+                    _ => panic!("No match {:04x}", x),
+                }
+            }
+            0b110 => {
+                match (x & 0b0001_1000_0000_0000) >> 11 {
+                    0b00 => ThumbInst::Stmia,
+                    0b01 => ThumbInst::Ldmia,
+                    0b10 |
+                    0b11 => ThumbInst::decode_cond_branch(x),
+                    _ => panic!("No match {:04x}", x),
+                }
+            },
+            // TODO
+            0b111 => return ThumbInst::None,
+            _ => panic!("No match {:04x}", x),
+        }
+    }
+}
+
 
 /// The set of supported ARMv5 instructions.
 #[derive(Debug)]
@@ -293,3 +552,14 @@ impl ArmInst {
     }
 }
 
+
+#[cfg(test)]
+mod test {
+    use crate::inst::*;
+    #[test]
+    fn thumb_decode() {
+        for i in 0..0x800u16 {
+            println!("{:04x} {:?}", i << 5, ThumbInst::decode(i << 5));
+        }
+    }
+}

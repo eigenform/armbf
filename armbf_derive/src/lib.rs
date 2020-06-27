@@ -26,9 +26,13 @@ fn impl_inst_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl InstBits for #name {
             #[inline(always)]
-            fn cond(&self) -> u32 { get_cond!(self.0) }
+            fn cond(&self) -> u32 {
+                (self.0 & 0b1111_0000_0000_0000_0000_0000_0000_0000) >> 28
+            }
             #[inline(always)]
-            fn group(&self) -> u32 { get_group!(self.0) }
+            fn group(&self) -> u32 {
+                (self.0 & 0b0000_1110_0000_0000_0000_0000_0000_0000) >> 25
+            }
         }
     }
 }
@@ -43,9 +47,13 @@ fn impl_dp_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl DpBits for #name {
             #[inline(always)]
-            fn opcd(&self) -> u32 { get_opcd!(self.0) }
+            fn opcd(&self) -> u32 {
+                (self.0 & 0b0000_0001_1110_0000_0000_0000_0000_0000) >> 21
+            }
             #[inline(always)]
-            fn s(&self) -> bool { get_s!(self.0) }
+            fn s(&self) -> bool {
+                (self.0 & 0b0000_0000_0001_0000_0000_0000_0000_0000) != 0
+            }
         }
     }
 }
@@ -60,9 +68,13 @@ fn impl_ls_multi_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl LsMultiBits for #name {
             #[inline(always)]
-            fn s(&self) -> bool { get_s_multi!(self.0) }
+            fn s(&self) -> bool {
+                (self.0 & 0b0000_0000_0100_0000_0000_0000_0000_0000) != 0
+            }
             #[inline(always)]
-            fn reglist(&self) -> u32 { get_reglist!(self.0) }
+            fn reglist(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_1111_1111_1111_1111)
+            }
         }
     }
 }
@@ -77,15 +89,25 @@ fn impl_ls_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl LsBits for #name {
             #[inline(always)]
-            fn p(&self) -> bool { get_p!(self.0) }
+            fn p(&self) -> bool {
+                (self.0 & 0b0000_0001_0000_0000_0000_0000_0000_0000) != 0
+            }
             #[inline(always)]
-            fn u(&self) -> bool { get_u!(self.0) }
+            fn u(&self) -> bool {
+                (self.0 & 0b0000_0000_1000_0000_0000_0000_0000_0000) != 0
+            }
             #[inline(always)]
-            fn b(&self) -> bool { get_b!(self.0) }
+            fn b(&self) -> bool {
+                (self.0 & 0b0000_0000_0100_0000_0000_0000_0000_0000) != 0
+            }
             #[inline(always)]
-            fn w(&self) -> bool { get_w!(self.0) }
+            fn w(&self) -> bool {
+                (self.0 & 0b0000_0000_0010_0000_0000_0000_0000_0000) != 0
+            }
             #[inline(always)]
-            fn l(&self) -> bool { get_l!(self.0) }
+            fn l(&self) -> bool {
+                (self.0 & 0b0000_0000_0001_0000_0000_0000_0000_0000) != 0
+            }
         }
     }
 }
@@ -99,23 +121,34 @@ fn impl_imm_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl ImmBits for #name {
             #[inline(always)]
-            fn imm4(&self) -> u32 { get_imm4!(self.0) }
+            fn imm4(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_0000_0000_1111)
+            }
             #[inline(always)]
-            fn imm8(&self) -> u32 { get_imm8!(self.0) }
+            fn imm8(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_0000_1111_1111)
+            }
             #[inline(always)]
-            fn imm12(&self) -> u32 { get_imm12!(self.0) }
+            fn imm12(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_1111_1111_1111)
+            }
 
             #[inline(always)]
-            fn imm12_hi(&self) -> u32 { get_imm12_hi!(self.0) }
+            fn imm12_hi(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_1111_1111_1111_0000_0000) >> 8
+            }
 
             #[inline(always)]
-            fn imm24(&self) -> u32 { get_imm24!(self.0) }
-
+            fn imm24(&self) -> u32 {
+                (self.0 & 0b0000_0000_1111_1111_1111_1111_1111_1111)
+            }
            #[inline(always)]
-            fn off_hi(&self) -> u32 { get_off_hi!(self.0) }
-            fn off_lo(&self) -> u32 { get_off_lo!(self.0) }
-
-
+            fn off_hi(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_1111_0000_0000) >> 8
+            }
+            fn off_lo(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_0000_0000_1111)
+            }
         }
     }
 }
@@ -130,7 +163,9 @@ fn impl_branch_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl BranchBits for #name {
             #[inline(always)]
-            fn link(&self) -> bool { get_link!(self.0) }
+            fn link(&self) -> bool {
+                (self.0 & 0b0000_0001_0000_0000_0000_0000_0000_0000) != 0
+            }
         }
     }
 }
@@ -145,7 +180,9 @@ fn impl_rot_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl RotBits for #name {
             #[inline(always)]
-            fn rot_imm(&self) -> u32 { get_rot_imm!(self.0) }
+            fn rot_imm(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_1111_0000_0000) >> 8
+            }
         }
     }
 }
@@ -160,9 +197,13 @@ fn impl_shift_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl ShiftBits for #name {
             #[inline(always)]
-            fn shift_imm(&self) -> u32 { get_shift_imm!(self.0) }
+            fn shift_imm(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_1111_1000_0000) >> 7
+            }
             #[inline(always)]
-            fn shift(&self) -> u32 { get_shift!(self.0) }
+            fn shift(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_0000_0110_0000) >> 5
+            }
         }
     }
 }
@@ -176,19 +217,33 @@ fn impl_coproc_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl CoprocBits for #name {
             #[inline(always)]
-            fn opcd1(&self) -> u32 { get_cp_opcd1!(self.0) }
+            fn opcd1(&self) -> u32 {
+                (self.0 & 0b0000_0000_1111_0000_0000_0000_0000_0000) >> 20
+            }
             #[inline(always)]
-            fn opcd1_rt(&self) -> u32 { get_cp_opcd1_rt!(self.0) }
+            fn opcd1_rt(&self) -> u32 {
+                (self.0 & 0b0000_0000_1110_0000_0000_0000_0000_0000) >> 21
+            }
             #[inline(always)]
-            fn cp_num(&self) -> u32 { get_cp_num!(self.0) }
+            fn cp_num(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_1111_0000_0000) >> 8
+            }
             #[inline(always)]
-            fn opcd2(&self) -> u32 { get_cp_opcd2!(self.0) }
+            fn opcd2(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_0000_1110_0000) >> 5
+            }
             #[inline(always)]
-            fn crn(&self) -> u32 { get_crn!(self.0) }
+            fn crn(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_1111_0000_0000_0000_0000) >> 16
+            }
             #[inline(always)]
-            fn crd(&self) -> u32 { get_crd!(self.0) }
+            fn crd(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_1111_0000_0000_0000) >> 12
+            }
             #[inline(always)]
-            fn crm(&self) -> u32 { get_crm!(self.0) }
+            fn crm(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_0000_0000_1111)
+            }
         }
     }
 }
@@ -203,18 +258,21 @@ fn impl_reg_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl RegBits for #name {
             #[inline(always)]
-            fn rn(&self) -> u32 { get_rn!(self.0) }
+            fn rn(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_1111_0000_0000_0000_0000) >> 16
+            }
             #[inline(always)]
-            fn rd(&self) -> u32 { get_rd!(self.0) }
+            fn rd(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_1111_0000_0000_0000) >> 12
+            }
             #[inline(always)]
-            fn rm(&self) -> u32 { get_rm!(self.0) }
+            fn rm(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_0000_0000_1111)
+            }
             #[inline(always)]
-            fn rs(&self) -> u32 { get_rs!(self.0) }
-
-            #[inline(always)]
-            fn rd_alt(&self) -> u32 { get_rn!(self.0) }
-            #[inline(always)]
-            fn rn_alt(&self) -> u32 { get_rd!(self.0) }
+            fn rs(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_0000_1111_0000_0000) >> 8
+            }
         }
     }
 }
@@ -229,9 +287,13 @@ fn impl_sr_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl SrBits for #name {
             #[inline(always)]
-            fn field_mask(&self) -> u32 { get_field_mask!(self.0) }
+            fn field_mask(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_1111_0000_0000_0000_0000) >> 16
+            }
             #[inline(always)]
-            fn r(&self) -> bool { get_r!(self.0) }
+            fn r(&self) -> bool {
+                (self.0 & 0b0000_0000_0100_0000_0000_0000_0000_0000) != 0
+            }
         }
     }
 }
@@ -245,29 +307,30 @@ fn impl_multiply_common(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl MultiplyBits for #name {
             #[inline(always)]
-            fn rd_hi(&self) -> u32 { get_rd_hi!(self.0) }
+            fn rd_hi(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_1111_0000_0000_0000_0000) >> 16
+            }
             #[inline(always)]
-            fn rd_lo(&self) -> u32 { get_rd_lo!(self.0) }
+            fn rd_lo(&self) -> u32 {
+                (self.0 & 0b0000_0000_0000_0000_1111_0000_0000_0000) >> 12
+            }
             #[inline(always)]
-            fn a(&self) -> bool { get_a!(self.0) }
+            fn a(&self) -> bool {
+                (self.0 & 0b0000_0000_0010_0000_0000_0000_0000_0000) != 0
+            }
             #[inline(always)]
-            fn un(&self) -> bool { get_un!(self.0) }
+            fn un(&self) -> bool {
+                (self.0 & 0b0000_0000_0100_0000_0000_0000_0000_0000) != 0
+            }
             #[inline(always)]
-            fn x(&self) -> bool { get_x!(self.0) }
+            fn x(&self) -> bool {
+                (self.0 & 0b0000_0000_0000_0000_0000_0000_0010_0000) != 0
+            }
             #[inline(always)]
-            fn y(&self) -> bool { get_y!(self.0) }
+            fn y(&self) -> bool {
+                (self.0 & 0b0000_0000_0000_0000_0000_0000_0100_0000) != 0
+            }
         }
-    }
-}
-
-
-
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
     }
 }
 

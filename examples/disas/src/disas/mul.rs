@@ -6,7 +6,7 @@ use armbf::fields::*;
 pub fn mul(op: &MulBf) -> String {
     format!("mul{}\t {}, {}, {}",
         Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_alt()),
+        Register::from_u32(op.rd()),
         Register::from_u32(op.rm()),
         Register::from_u32(op.rs()),
     )
@@ -14,10 +14,10 @@ pub fn mul(op: &MulBf) -> String {
 pub fn mla(op: &MulBf) -> String {
     format!("mul{}\t {}, {}, {}, {}",
         Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_alt()),
+        Register::from_u32(op.rd()),
         Register::from_u32(op.rm()),
         Register::from_u32(op.rs()),
-        Register::from_u32(op.rn_alt()),
+        Register::from_u32(op.rn()),
     )
 }
 
@@ -69,10 +69,10 @@ pub fn smla_xy(op: &MulBf) -> String {
     };
     format!("slma{}{}\t {}, {}, {}, {}", xy,
         Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_alt()),
+        Register::from_u32(op.rd()),
         Register::from_u32(op.rm()),
         Register::from_u32(op.rs()),
-        Register::from_u32(op.rn_alt()),
+        Register::from_u32(op.rn()),
     )
 }
 
@@ -83,8 +83,8 @@ pub fn smlal_xy(op: &MulBf) -> String {
     };
     format!("slmal{}{} {}, {}, {}, {}", xy,
         Cond::from_u32(op.cond()),
-        Register::from_u32(op.rn_alt()),
-        Register::from_u32(op.rd_alt()),
+        Register::from_u32(op.rn()),
+        Register::from_u32(op.rd()),
         Register::from_u32(op.rm()),
         Register::from_u32(op.rs()),
     )
@@ -97,7 +97,7 @@ pub fn smul_xy(op: &MulBf) -> String {
     };
     format!("smul{}{}  {}, {}, {}", xy,
         Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_alt()),
+        Register::from_u32(op.rd()),
         Register::from_u32(op.rm()),
         Register::from_u32(op.rs()),
     )
@@ -107,10 +107,10 @@ pub fn smlaw_y(op: &MulBf) -> String {
     let y = if op.y() { "t" } else { "b" };
     format!("slmaw{}{}  {}, {}, {}, {}", y,
         Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_alt()),
+        Register::from_u32(op.rd()),
         Register::from_u32(op.rm()),
         Register::from_u32(op.rs()),
-        Register::from_u32(op.rn_alt()),
+        Register::from_u32(op.rn()),
     )
 }
 
@@ -118,7 +118,7 @@ pub fn smulw_y(op: &MulBf) -> String {
     let y = if op.y() { "t" } else { "b" };
     format!("smulw{}{}  {}, {}, {}", y,
         Cond::from_u32(op.cond()),
-        Register::from_u32(op.rd_alt()),
+        Register::from_u32(op.rd()),
         Register::from_u32(op.rm()),
         Register::from_u32(op.rs()),
     )

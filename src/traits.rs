@@ -88,8 +88,6 @@ pub trait RegBits {
     fn rd(&self) -> u32;
     fn rm(&self) -> u32;
     fn rs(&self) -> u32;
-    fn rn_alt(&self) -> u32;
-    fn rd_alt(&self) -> u32;
 }
 
 

@@ -11,18 +11,39 @@ pub mod ls;
 pub mod dp;
 pub mod cp;
 
+pub mod thumb;
+
 /// Inner type 
 pub type DisFn = fn(x: &u32) -> String;
+pub type ThumbDisFn = fn(x: &u16) -> String;
 
 /// Newtype representing a function in the LUT.
 #[derive(Copy, Clone)]
 pub struct LutFunc(pub DisFn);
+#[derive(Copy, Clone)]
+pub struct ThumbLutFunc(pub ThumbDisFn);
+
 
 /// The undefined instruction handler.
 pub fn undef_instr(x: &u32) -> String {
     let idx = ((*x >> 16) & 0x0ff0) | ((*x >> 4) & 0x000f);
     format!("No instruction; LUT index = {:04x}", idx)
 }
+pub fn undef_instr_thumb(x: &u16) -> String {
+    format!("Unimplemented thumb instruction; LUT index = {:04x}", x >> 5)
+}
+
+impl ThumbLutEntry for ThumbLutFunc {
+    fn from_inst(inst: ThumbInst) -> Self {
+        macro_rules! cfn { ($func:expr) => { unsafe {
+            transmute::<*const fn(), ThumbDisFn>($func as *const fn())
+        }}}
+        match inst {
+            _ => ThumbLutFunc(cfn!(undef_instr_thumb)),
+        }
+    }
+}
+
 
 /// A map from ArmInst to LutFunc.
 impl ArmLutEntry for LutFunc {

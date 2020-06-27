@@ -11,6 +11,10 @@ all:
 		arm_decode_test.S -o arm_decode_test.o
 	arm-none-eabi-objcopy -j .text -O binary arm_decode_test.o arm_decode_test.bin
 
+	arm-none-eabi-as -mthumb -mbig-endian -mcpu=arm926ej-s \
+		thumb_decode_test.S -o thumb_decode_test.o
+	arm-none-eabi-objcopy -j .text -O binary thumb_decode_test.o thumb_decode_test.bin
+
 
 clean:
 	rm -vf *.elf *.bin *.o
