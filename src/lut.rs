@@ -6,11 +6,15 @@ use crate::inst::*;
 /// An ARMv5 lookup table.
 pub struct ArmLut<T: ArmLutEntry> { pub data: [T; 0x1000] }
 
+/// A Thumb lookup table.
+pub struct ThumbLut<T: ThumbLutEntry> { pub data: [T; 0x0800] }
+
 /// Implemented on all types store-able by some ArmLut.
-pub trait ArmLutEntry { 
-    /// A map from ArmInst to some ArmLutEntry.
-    fn from_inst(inst: ArmInst) -> Self;
-}
+pub trait ArmLutEntry { fn from_inst(inst: ArmInst) -> Self; }
+
+/// Implemented on all types store-able by some ThumbLut.
+pub trait ThumbLutEntry { fn from_inst(inst: ThumbInst) -> Self; }
+
 
 /// Creates a new ArmLut for some T.
 ///
@@ -24,14 +28,6 @@ pub fn make_arm_lut<T: ArmLutEntry + Copy>(default_entry: T) -> ArmLut<T> {
     lut
 }
 
-/// A Thumb lookup table.
-pub struct ThumbLut<T: ThumbLutEntry> { pub data: [T; 0x0800] }
-
-/// Implemented on all types store-able by some ThumbLut.
-pub trait ThumbLutEntry {
-    fn from_inst(inst: ThumbInst) -> Self;
-}
-
 /// Create a new ThumbLut for some T.
 pub fn make_thumb_lut<T: ThumbLutEntry + Copy>(default_entry: T) -> ThumbLut<T> {
     let mut lut = ThumbLut { data: [default_entry; 0x0800] };
@@ -41,3 +37,4 @@ pub fn make_thumb_lut<T: ThumbLutEntry + Copy>(default_entry: T) -> ThumbLut<T> 
     }
     lut
 }
+
