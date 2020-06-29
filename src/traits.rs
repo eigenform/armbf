@@ -5,6 +5,11 @@
 //! these traits have some corresponding macro in the armbf_prim crate which 
 //! perform some operation on a u32.
 
+/* 
+ * The following are traits representing bitfields on ARM instructions.
+ */
+
+
 /// Accessors common to all instructions.
 pub trait InstBits {
     fn cond(&self) -> u32;
@@ -89,5 +94,144 @@ pub trait RegBits {
     fn rm(&self) -> u32;
     fn rs(&self) -> u32;
 }
+
+
+/* 
+ * The following are traits representing bitfields on Thumb instructions.
+ */
+
+
+/// Thumb data-processing, format 1
+pub trait DpFmt1Bits {
+    fn rd(&self) -> u16;
+    fn rn(&self) -> u16;
+    fn rm(&self) -> u16;
+    fn op1(&self) -> bool;
+}
+
+/// Thumb data-processing, format 2
+pub trait DpFmt2Bits {
+    fn rd(&self) -> u16;
+    fn rn(&self) -> u16;
+    fn imm3(&self) -> u16;
+    fn op2(&self) -> bool;
+}
+
+/// Thumb data-processing, format 3
+pub trait DpFmt3Bits {
+    fn imm8(&self) -> u16;
+    fn rdrn(&self) -> u16;
+    fn op3(&self) -> u16;
+}
+
+/// Thumb data-processing, format 4
+pub trait DpFmt4Bits {
+    fn rd(&self) -> u16;
+    fn rm(&self) -> u16;
+    fn shift_imm(&self) -> u16;
+    fn op4(&self) -> u16;
+}
+
+/// Thumb data-processing, format 5
+pub trait DpFmt5Bits {
+    fn rdrn(&self) -> u16;
+    fn rmrs(&self) -> u16;
+    fn op5(&self) -> u16;
+}
+
+/// Thumb data-processing, format 6
+pub trait DpFmt6Bits {
+    fn imm8(&self) -> u16;
+    fn rd(&self) -> u16;
+    fn reg(&self) -> bool;
+}
+
+/// Thumb data-processing, format 7
+pub trait DpFmt7Bits {
+    fn imm7(&self) -> u16;
+    fn op6(&self) -> u16;
+}
+
+/// Thumb data-processing, format 8
+pub trait DpFmt8Bits {
+    fn rdrn(&self) -> u16;
+    fn rm(&self) -> u16;
+    fn h2(&self) -> bool;
+    fn h1(&self) -> bool;
+    fn opcd(&self) -> u16;
+}
+
+
+/// Thumb load/store register, format 1
+pub trait LsRegFmt1Bits {
+    fn rd(&self) -> u16;
+    fn rn(&self) -> u16;
+    fn off(&self) -> u16;
+    fn opcd1(&self) -> u16;
+}
+
+/// Thumb load/store register, format 2
+pub trait LsRegFmt2Bits {
+    fn rd(&self) -> u16;
+    fn rn(&self) -> u16;
+    fn rm(&self) -> u16;
+    fn opcd2(&self) -> u16;
+}
+
+/// Thumb load/store register, format 3
+pub trait LsRegFmt3Bits {
+    fn imm8(&self) -> u16;
+    fn rd(&self) -> u16;
+}
+
+/// Thumb load/store register, format 4
+pub trait LsRegFmt4Bits {
+    fn imm8(&self) -> u16;
+    fn rd(&self) -> u16;
+    fn l(&self) -> bool;
+}
+
+
+/// Thumb load/store multiple, format 1
+pub trait LsMultiFmt1Bits {
+    fn reglist(&self) -> u16;
+    fn rn(&self) -> u16;
+    fn l(&self) -> bool;
+}
+
+/// Thumb load/store multiple, format 2
+pub trait LsMultiFmt2Bits {
+    fn reglist(&self) -> u16;
+    fn r(&self) -> bool;
+    fn l(&self) -> bool;
+}
+
+
+/// Thumb exception-generating instructions
+pub trait ThumbExcepBits {
+    fn imm8(&self) -> u16;
+}
+pub trait ThumbCondBranchBits {
+    fn simm8(&self) -> u16;
+    fn cond(&self) -> u16;
+}
+pub trait ThumbUncondBranchBits {
+    fn imm11(&self) -> u16;
+    fn h(&self) -> u16;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

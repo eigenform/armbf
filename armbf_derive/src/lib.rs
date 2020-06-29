@@ -17,6 +17,10 @@ macro_rules! get_tokenstream { ($input:expr, $impl:ident) => {
 }}
 
 
+/* 
+ * Derive macros for traits representing bitfields on ARM instructions.
+ */
+
 #[proc_macro_derive(InstBits)]
 pub fn derive_inst_common(input: TokenStream) -> TokenStream {
     return get_tokenstream!(input, impl_inst_common);
@@ -330,6 +334,329 @@ fn impl_multiply_common(ast: &syn::DeriveInput) -> quote::Tokens {
             fn y(&self) -> bool {
                 (self.0 & 0b0000_0000_0000_0000_0000_0000_0100_0000) != 0
             }
+        }
+    }
+}
+
+
+/* 
+ * Derive macros for traits representing bitfields on Thumb instructions
+ */
+
+
+#[proc_macro_derive(DpFmt1Bits)]
+pub fn derive_dp_fmt1(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_dp_fmt1);
+}
+fn impl_dp_fmt1(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl DpFmt1Bits for #name {
+            #[inline(always)]
+            fn rd(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
+
+            #[inline(always)]
+            fn rn(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
+
+            #[inline(always)]
+            fn rm(&self) -> u16 { (self.0 & 0b0000_0001_1100_1000) >> 6 }
+
+            #[inline(always)]
+            fn op1(&self) -> bool { (self.0 & 0b0000_0010_0000_1000) != 0 }
+        }
+    }
+}
+
+#[proc_macro_derive(DpFmt2Bits)]
+pub fn derive_dp_fmt2(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_dp_fmt2);
+}
+fn impl_dp_fmt2(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl DpFmt2Bits for #name {
+            #[inline(always)]
+            fn rd(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
+
+            #[inline(always)]
+            fn rn(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
+
+            #[inline(always)]
+            fn imm3(&self) -> u16 { (self.0 & 0b0000_0001_1100_1000) >> 6 }
+
+            #[inline(always)]
+            fn op2(&self) -> bool { (self.0 & 0b0000_0010_0000_1000) != 0 }
+        }
+    }
+}
+
+#[proc_macro_derive(DpFmt3Bits)]
+pub fn derive_dp_fmt3(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_dp_fmt3);
+}
+fn impl_dp_fmt3(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl DpFmt3Bits for #name {
+            #[inline(always)]
+            fn op3(&self) -> u16 { (self.0 & 0b0001_1000_0000_0000) >> 11 }
+
+            #[inline(always)]
+            fn rdrn(&self) -> u16 { (self.0 & 0b0000_0111_0000_0000) >> 8 }
+
+            #[inline(always)]
+            fn imm8(&self) -> u16 { (self.0 & 0b0000_0000_1111_1111) }
+        }
+    }
+}
+
+#[proc_macro_derive(DpFmt4Bits)]
+pub fn derive_dp_fmt4(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_dp_fmt4);
+}
+fn impl_dp_fmt4(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl DpFmt4Bits for #name {
+            #[inline(always)]
+            fn rd(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
+
+            #[inline(always)]
+            fn rm(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
+
+            #[inline(always)]
+            fn shift_imm(&self) -> u16 { 
+                (self.0 & 0b0000_0111_1100_0000) >> 6
+            }
+            #[inline(always)]
+            fn op4(&self) -> u16 { (self.0 & 0b0001_1000_0000_0000) >> 11 }
+        }
+    }
+}
+
+#[proc_macro_derive(DpFmt5Bits)]
+pub fn derive_dp_fmt5(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_dp_fmt5);
+}
+fn impl_dp_fmt5(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl DpFmt5Bits for #name {
+            #[inline(always)]
+            fn rdrn(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
+
+            #[inline(always)]
+            fn rmrs(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
+
+            #[inline(always)]
+            fn op5(&self) -> u16 { (self.0 & 0b0000_0011_1100_0000) >> 6 }
+        }
+    }
+}
+
+#[proc_macro_derive(DpFmt6Bits)]
+pub fn derive_dp_fmt6(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_dp_fmt6);
+}
+fn impl_dp_fmt6(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl DpFmt6Bits for #name {
+            #[inline(always)]
+            fn reg(&self) -> bool { (self.0 & 0b0000_1000_0000_0000) != 0 }
+
+            #[inline(always)]
+            fn rd(&self) -> u16 { (self.0 & 0b0000_0111_0000_0000) >> 8 }
+
+            #[inline(always)]
+            fn imm8(&self) -> u16 { (self.0 & 0b0000_0000_1111_1111) }
+        }
+    }
+}
+
+#[proc_macro_derive(DpFmt7Bits)]
+pub fn derive_dp_fmt7(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_dp_fmt7);
+}
+fn impl_dp_fmt7(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl DpFmt7Bits for #name {
+            #[inline(always)]
+            fn op6(&self) -> bool { (self.0 & 0b0000_0000_1000_0000) != 0 }
+
+            #[inline(always)]
+            fn imm7(&self) -> u16 { (self.0 & 0b0000_0000_0111_1111) }
+
+        }
+    }
+}
+
+#[proc_macro_derive(DpFmt8Bits)]
+pub fn derive_dp_fmt8(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_dp_fmt8);
+}
+fn impl_dp_fmt8(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl DpFmt8Bits for #name {
+            #[inline(always)]
+            fn rdrn(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
+
+            #[inline(always)]
+            fn rm(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
+
+            #[inline(always)]
+            fn h2(&self) -> bool {(self.0 & 0b0000_0000_0100_0000) != 0 }
+
+            #[inline(always)]
+            fn h1(&self) -> bool {(self.0 & 0b0000_0000_1000_0000) != 0 }
+
+            #[inline(always)]
+            fn opcd(&self) -> u16 { (self.0 & 0b0000_0011_0000_0000) >> 8 }
+        }
+    }
+}
+
+
+#[proc_macro_derive(LsRegFmt1Bits)]
+pub fn derive_ls_reg_fmt1(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_ls_reg_fmt1);
+}
+fn impl_ls_reg_fmt1(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl LsRegFmt1Bits for #name {
+            #[inline(always)]
+            fn rd(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
+
+            #[inline(always)]
+            fn rn(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
+
+            #[inline(always)]
+            fn off(&self) -> u16 {(self.0 & 0b0000_0111_1100_0000) >> 6 }
+
+            #[inline(always)]
+            fn opcd1(&self) -> u16 {(self.0 & 0b1111_1000_1000_0000) >> 11 }
+        }
+    }
+}
+
+
+#[proc_macro_derive(LsRegFmt2Bits)]
+pub fn derive_ls_reg_fmt2(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_ls_reg_fmt2);
+}
+fn impl_ls_reg_fmt2(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl LsRegFmt2Bits for #name {
+            #[inline(always)]
+            fn rd(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
+
+            #[inline(always)]
+            fn rn(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
+
+            #[inline(always)]
+            fn rm(&self) -> u16 { (self.0 & 0b0000_0001_1100_0000) >> 6 }
+
+            #[inline(always)]
+            fn opcd2(&self) -> u16 { (self.0 & 0b1111_1110_0000_0000) >> 9 }
+        }
+    }
+}
+
+#[proc_macro_derive(LsRegFmt3Bits)]
+pub fn derive_ls_reg_fmt3(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_ls_reg_fmt3);
+}
+fn impl_ls_reg_fmt3(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl LsRegFmt3Bits for #name {
+            #[inline(always)]
+            fn imm8(&self) -> u16 { (self.0 & 0b0000_0000_1111_1111) }
+
+            #[inline(always)]
+            fn rd(&self) -> u16 { (self.0 & 0b0000_0111_0000_0000) >> 8 }
+        }
+    }
+}
+
+#[proc_macro_derive(LsRegFmt4Bits)]
+pub fn derive_ls_reg_fmt4(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_ls_reg_fmt4);
+}
+fn impl_ls_reg_fmt4(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl LsRegFmt4Bits for #name {
+            #[inline(always)]
+            fn imm8(&self) -> u16 { (self.0 & 0b0000_0000_1111_1111) }
+
+            #[inline(always)]
+            fn rd(&self) -> u16 { (self.0 & 0b0000_0111_0000_0000) >> 8 }
+
+            #[inline(always)]
+            fn l(&self) -> bool { (self.0 & 0b0000_1000_0000_0000) != 0 }
+        }
+    }
+}
+
+
+
+#[proc_macro_derive(LsMultiFmt1Bits)]
+pub fn derive_ls_multi_fmt1(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_ls_multi_fmt1);
+}
+fn impl_ls_multi_fmt1(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl LsMultiFmt1Bits for #name {
+            #[inline(always)]
+            fn reglist(&self) -> u16 { (self.0 & 0b0000_0000_1111_1111) }
+
+            #[inline(always)]
+            fn rn(&self) -> u16 { (self.0 & 0b0000_0111_0000_0000) >> 8 }
+
+            #[inline(always)]
+            fn l(&self) -> bool { (self.0 & 0b0000_1000_0000_0000) != 0 }
+        }
+    }
+}
+
+#[proc_macro_derive(LsMultiFmt2Bits)]
+pub fn derive_ls_multi_fmt2(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_ls_multi_fmt2);
+}
+fn impl_ls_multi_fmt2(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl LsMultiFmt2Bits for #name {
+            #[inline(always)]
+            fn reglist(&self) -> u16 { (self.0 & 0b0000_0000_1111_1111) }
+
+            #[inline(always)]
+            fn r(&self) -> bool { (self.0 & 0b0000_0001_0000_0000) != 0 }
+
+            #[inline(always)]
+            fn l(&self) -> bool { (self.0 & 0b0000_1000_0000_0000) != 0 }
+
+        }
+    }
+}
+
+
+#[proc_macro_derive(ThumbExcepBits)]
+pub fn derive_thumb_excep(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_thumb_excep);
+}
+fn impl_thumb_excep(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl ThumbExcepBits for #name {
+            #[inline(always)]
+            fn imm8(&self) -> u16 { (self.0 & 0b0000_0000_1111_1111) }
         }
     }
 }
