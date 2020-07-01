@@ -9,7 +9,7 @@ use armbf_derive::*;
 
 use crate::traits::*;
 
-/// Make declaring these newtypes somewhat easier to look at.
+/// Make declaring ARM newtypes somewhat easier to look at.
 ///
 /// NOTE: This macro implicitly derives some traits representing bitfields 
 /// that are common to all types of instructions.
@@ -19,7 +19,6 @@ macro_rules! declare_instr_fields {
         #[derive(Debug, InstBits, $($trait),*)]
         pub struct $name(pub u32);
 }}
-
 
 declare_instr_fields!(DpRotImmBf,       DpBits, RegBits, RotBits, ImmBits);
 declare_instr_fields!(DpShiftBf,        DpBits, RegBits, ShiftBits);
@@ -37,4 +36,20 @@ declare_instr_fields!(CoprocBf,         CoprocBits, LsBits, ImmBits, RegBits);
 declare_instr_fields!(StatusBf,         SrBits, RegBits, ImmBits, RotBits);
 declare_instr_fields!(SwiBf,            ImmBits);
 declare_instr_fields!(BkptBf,           ImmBits);
+
+
+
+/// Make declaring Thumb newtypes somewhat easier to look at.
+macro_rules! declare_thumb_fields { 
+    ($name:ident, $($trait:ident),*) => {
+        #[repr(transparent)]
+        #[derive(Debug, $($trait),*)]
+        pub struct $name(pub u16);
+}}
+
+
+declare_thumb_fields!(ThumbLsMultiBf,   LsMultiFmt1Bits);
+declare_thumb_fields!(PushPopBf,        LsMultiFmt2Bits);
+declare_thumb_fields!(ThumbExcepBf,     ThumbExcepBits);
+
 
