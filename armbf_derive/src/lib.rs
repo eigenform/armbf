@@ -402,7 +402,8 @@ fn impl_dp_fmt3(ast: &syn::DeriveInput) -> quote::Tokens {
             fn op3(&self) -> u16 { (self.0 & 0b0001_1000_0000_0000) >> 11 }
 
             #[inline(always)]
-            fn rdrn(&self) -> u16 { (self.0 & 0b0000_0111_0000_0000) >> 8 }
+            fn rn(&self) -> u16 { (self.0 & 0b0000_0111_0000_0000) >> 8 }
+            fn rd(&self) -> u16 { (self.0 & 0b0000_0111_0000_0000) >> 8 }
 
             #[inline(always)]
             fn imm8(&self) -> u16 { (self.0 & 0b0000_0000_1111_1111) }
@@ -443,10 +444,14 @@ fn impl_dp_fmt5(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl DpFmt5Bits for #name {
             #[inline(always)]
-            fn rdrn(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
+            fn rd(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
+            #[inline(always)]
+            fn rn(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
 
             #[inline(always)]
-            fn rmrs(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
+            fn rm(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
+            #[inline(always)]
+            fn rs(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
 
             #[inline(always)]
             fn op5(&self) -> u16 { (self.0 & 0b0000_0011_1100_0000) >> 6 }
@@ -501,7 +506,9 @@ fn impl_dp_fmt8(ast: &syn::DeriveInput) -> quote::Tokens {
     quote! {
         impl DpFmt8Bits for #name {
             #[inline(always)]
-            fn rdrn(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
+            fn rd(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
+            #[inline(always)]
+            fn rn(&self) -> u16 { (self.0 & 0b0000_0000_0000_0111) }
 
             #[inline(always)]
             fn rm(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
@@ -534,7 +541,7 @@ fn impl_ls_reg_fmt1(ast: &syn::DeriveInput) -> quote::Tokens {
             fn rn(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
 
             #[inline(always)]
-            fn off(&self) -> u16 {(self.0 & 0b0000_0111_1100_0000) >> 6 }
+            fn imm5(&self) -> u16 {(self.0 & 0b0000_0111_1100_0000) >> 6 }
 
             #[inline(always)]
             fn opcd1(&self) -> u16 {(self.0 & 0b1111_1000_1000_0000) >> 11 }
@@ -660,5 +667,40 @@ fn impl_thumb_excep(ast: &syn::DeriveInput) -> quote::Tokens {
         }
     }
 }
+
+
+#[proc_macro_derive(ThumbUncondBranchBits)]
+pub fn derive_thumb_uncond_branch(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_thumb_uncond_branch);
+}
+fn impl_thumb_uncond_branch(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl ThumbUncondBranchBits for #name {
+            #[inline(always)]
+            fn imm11(&self) -> u16 { (self.0 & 0b0000_0111_1111_1111) }
+            #[inline(always)]
+            fn h(&self) -> u16 { (self.0 & 0b0001_1000_0000_0000) >> 11 }
+        }
+    }
+}
+
+
+#[proc_macro_derive(ThumbBranchExchangeBits)]
+pub fn derive_thumb_branch_exch(input: TokenStream) -> TokenStream {
+    return get_tokenstream!(input, impl_thumb_branch_exch);
+}
+fn impl_thumb_branch_exch(ast: &syn::DeriveInput) -> quote::Tokens {
+    let name = &ast.ident;
+    quote! {
+        impl ThumbBranchExchangeBits for #name {
+            #[inline(always)]
+            fn rm(&self) -> u16 { (self.0 & 0b0000_0000_0011_1000) >> 3 }
+            #[inline(always)]
+            fn h2(&self) -> bool { (self.0 & 0b0000_0000_0100_0000) != 0 }
+        }
+    }
+}
+
 
 

@@ -52,4 +52,18 @@ declare_thumb_fields!(ThumbLsMultiBf,   LsMultiFmt1Bits);
 declare_thumb_fields!(PushPopBf,        LsMultiFmt2Bits);
 declare_thumb_fields!(ThumbExcepBf,     ThumbExcepBits);
 
+declare_thumb_fields!(DpSpecialBf,      DpFmt8Bits);
+declare_thumb_fields!(ThumbLdrLitBf,    LsRegFmt3Bits);
+
+declare_thumb_fields!(DpFmt3Bf,         DpFmt3Bits);
+declare_thumb_fields!(DpFmt4Bf,         DpFmt4Bits);
+declare_thumb_fields!(DpFmt5Bf,         DpFmt5Bits);
+
+declare_thumb_fields!(ThumbBranchLinkBf,        ThumbUncondBranchBits);
+declare_thumb_fields!(ThumbBranchExchangeBf,    ThumbBranchExchangeBits);
+
+declare_thumb_fields!(ThumbLsFmt1Bf,      LsRegFmt1Bits);
+
+
+
 

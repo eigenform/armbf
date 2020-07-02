@@ -57,6 +57,7 @@ pub enum ThumbInst {
     Push, Pop,
     Swi, Bkpt, 
     BranchCond, BranchUncond,
+    BlPrefix, Bl, Blx,
 
     LdrLit,
     AddImmPc, AddImmSp,
@@ -255,7 +256,15 @@ impl ThumbInst {
                 }
             },
             // TODO
-            0b111 => return ThumbInst::None,
+            0b111 => {
+                match (x & 0b0001_1000_0000_0000) >> 11 {
+                    0b00 => ThumbInst::BranchUncond,
+                    0b10 => ThumbInst::BlPrefix,
+                    0b01 => ThumbInst::Blx,
+                    0b11 => ThumbInst::Bl,
+                    _ => panic!("No match {:04x}", x),
+                }
+            },
             _ => panic!("No match {:04x}", x),
         }
     }

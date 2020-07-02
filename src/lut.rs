@@ -4,9 +4,11 @@ use std::marker::Copy;
 use crate::inst::*;
 
 /// An ARMv5 lookup table.
+#[repr(C, align(64))]
 pub struct ArmLut<T: ArmLutEntry> { pub data: [T; 0x1000] }
 
 /// A Thumb lookup table.
+#[repr(C, align(64))]
 pub struct ThumbLut<T: ThumbLutEntry> { pub data: [T; 0x0800] }
 
 /// Implemented on all types store-able by some ArmLut.

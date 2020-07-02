@@ -120,7 +120,8 @@ pub trait DpFmt2Bits {
 /// Thumb data-processing, format 3
 pub trait DpFmt3Bits {
     fn imm8(&self) -> u16;
-    fn rdrn(&self) -> u16;
+    fn rd(&self) -> u16;
+    fn rn(&self) -> u16;
     fn op3(&self) -> u16;
 }
 
@@ -134,8 +135,10 @@ pub trait DpFmt4Bits {
 
 /// Thumb data-processing, format 5
 pub trait DpFmt5Bits {
-    fn rdrn(&self) -> u16;
-    fn rmrs(&self) -> u16;
+    fn rd(&self) -> u16;
+    fn rn(&self) -> u16;
+    fn rm(&self) -> u16;
+    fn rs(&self) -> u16;
     fn op5(&self) -> u16;
 }
 
@@ -154,7 +157,8 @@ pub trait DpFmt7Bits {
 
 /// Thumb data-processing, format 8
 pub trait DpFmt8Bits {
-    fn rdrn(&self) -> u16;
+    fn rd(&self) -> u16;
+    fn rn(&self) -> u16;
     fn rm(&self) -> u16;
     fn h2(&self) -> bool;
     fn h1(&self) -> bool;
@@ -166,7 +170,7 @@ pub trait DpFmt8Bits {
 pub trait LsRegFmt1Bits {
     fn rd(&self) -> u16;
     fn rn(&self) -> u16;
-    fn off(&self) -> u16;
+    fn imm5(&self) -> u16;
     fn opcd1(&self) -> u16;
 }
 
@@ -218,6 +222,11 @@ pub trait ThumbCondBranchBits {
 pub trait ThumbUncondBranchBits {
     fn imm11(&self) -> u16;
     fn h(&self) -> u16;
+}
+
+pub trait ThumbBranchExchangeBits {
+    fn rm(&self) -> u16;
+    fn h2(&self) -> bool;
 }
 
 

@@ -132,7 +132,7 @@ impl Register {
             7 => Register::r7,
             8 => Register::r8,
             9 => Register::r9,
-            10=> Register::r10,
+            10 => Register::r10,
             11 => Register::r11,
             12 => Register::ip,
             13 => Register::sp,
